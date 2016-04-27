@@ -1,0 +1,1 @@
+This folder contains the workspaces for you to import into Query Concole.
