@@ -1,4 +1,4 @@
-#***NOTE: THIS REPOSITORY IS NOT YET READY FOR CLONING. WORKSPACES AND TUTORIAL CODE IS MISSING.***
+#***NOTE: THIS REPOSITORY IS NOT YET READY FOR CLONING. WORKSPACES AND TUTORIAL CODE MISSING.***
 
 # MarkLogic World 2016 Geospatial Workshop
 This project contains data, query workspaces, and code to use for the MarkLogic World 2016 Geospatial Workshop.
