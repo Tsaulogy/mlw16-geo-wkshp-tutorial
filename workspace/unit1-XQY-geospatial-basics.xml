@@ -1,0 +1,383 @@
+<export><workspace name="unit1-XQY-geospatial-basics"><query name="1-unit-conversion (xqy)" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: San Francisco is defined in terms of latitude and longitude
+Degrees Minutes Seconds ( DMS )
+Latitude: 37° 46' 26.2992''
+Longitude: 122° 25' 52.6692''
+
+Degrees Decimal Minutes ( DDM )
+Latitude: 37°46.43832′ N
+Longitude: 122°25.87782′ W
+
+Decimal Degrees ( DD )
+Latitude: 37.773972
+Longitude: -122.431297
+
+Radians
+Latitude is 0.65929
+Longitude is 2.13662 :)
+
+declare variable $PI as xs:double := 3.14159265358979323946;
+
+(: Degrees Minutes Seconds (DMS) :)
+let $DMS-degrees:= 37
+let $DMS-minutes := 46
+let $DMS-seconds := 26.2992
+let $DMS-latitude := fn:concat($DMS-degrees,"° ",$DMS-minutes,"' ",$DMS-seconds,"' N")
+
+(: Degrees Decimal Minutes (DDM) :)
+let $DDM-minutes := $DMS-minutes+xs:float($DMS-seconds div 60)
+let $DDM-latitude := fn:concat($DMS-degrees,"° ",$DDM-minutes,"'N")
+
+
+(: Decimal Degrees (DD) :)
+let $DD-latitude :=  xs:double($DMS-degrees)+xs:double(xs:double($DMS-minutes)+ xs:double($DMS-seconds div 60)) div 60
+
+(: Radians :)
+let $Radians := $DD-latitude* ($PI div 180)
+
+return (
+&lt;DMS-latitude&gt;{$DMS-latitude}&lt;/DMS-latitude&gt;,
+&lt;DDM-latitude&gt;{$DDM-latitude}&lt;/DDM-latitude&gt;,
+&lt;DD-latitude&gt;{$DD-latitude}&lt;/DD-latitude&gt;,
+&lt;Radians&gt;{$Radians}&lt;/Radians&gt;
+)
+
+(: Solution
+&lt;DMS-latitude&gt;37° 46' 26.2992' N&lt;/DMS-latitude&gt;
+&lt;DDM-latitude&gt;37° 46.43832'N&lt;/DDM-latitude&gt;
+&lt;DD-latitude&gt;37.773972&lt;/DD-latitude&gt;
+&lt;Radians&gt;0.659280182956148&lt;/Radians&gt;
+:)</query><query name="2-Points(xqy)" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://Functions
+1.cts:point( 37 , -12 ) =&gt; returns a point value[ Constructor ]
+2.cts:point-latitude($point) =&gt; Returns a point's latitude value[ Basic Operation ]
+3.cts:point-longitude($point) =&gt; Returns a point's longitude value[ Basic Operation ]
+4.geo:distance($p1, $p2) =&gt; returns the distance (in miles) between two points[ Additional Operations ]
+5.geo:bearing($p1, $p2) =&gt; returns the true bearing in radians of the path from the first point to the second.[ Additional Operations ]
+6.geo:arc-intersection( $p1, $p2, $p3, $p4) =&gt; returns the point at the intersection of two arcs[ Additional Operations ]
+7.geo:destination($p, $bearing, $distance) =&gt; returns the point at the given distance[ Additional Operations ]
+:)
+
+xquery version "1.0-ml";
+(: Constructors :)
+let $point1 := cts:point(37, -122)
+let $point2:= cts:point(40, -73)
+let $point3:= cts:point(35,-100)
+let $point4 := cts:point(41,-70)
+
+(: Basic Operations :)
+let $latitude1 := cts:point-latitude($point1)
+let $longitude1 :=  cts:point-longitude($point1)
+
+(: Additional Operations :)
+let $distance12 := geo:distance($point1, $point2)
+let $bearing12 :=   geo:bearing($point1, $point2)
+let $intersection1234 := geo:arc-intersection( $point1, $point2, $point3, $point4)
+let $destination12 := geo:destination($point1, $bearing12, $distance12)
+
+return
+(
+&lt;point1&gt;{$point1}&lt;/point1&gt;,
+&lt;point2&gt;{$point2}&lt;/point2&gt;,
+&lt;point3&gt;{$point3}&lt;/point3&gt;,
+&lt;point4&gt;{$point4}&lt;/point4&gt;,
+&lt;latitude1&gt;{$latitude1}&lt;/latitude1&gt;,
+&lt;longitude1&gt;{$longitude1}&lt;/longitude1&gt;,
+&lt;distance12&gt;{$distance12}&lt;/distance12&gt;,
+&lt;bearing12&gt;{$bearing12}&lt;/bearing12&gt;,
+&lt;intersection1234&gt;{$intersection1234}&lt;/intersection1234&gt;,
+&lt;destination12&gt;{$destination12}&lt;/destination12&gt;
+)
+
+(: Solution 
+
+//Constructors 
+&lt;point1&gt;37,-122&lt;/point1&gt;
+&lt;point2&gt;40,-73&lt;/point2&gt;
+&lt;point3&gt;35,-100&lt;/point3&gt;
+&lt;point4&gt;41,-70&lt;/point4&gt;
+
+//Basic Operations
+&lt;latitude1&gt;37&lt;/latitude1&gt;
+&lt;longitude1&gt;-122&lt;/longitude1&gt;
+
+//Additional Operations
+&lt;distance12&gt;2630.54620397121&lt;/distance12&gt;
+&lt;bearing12&gt;1.2212785952625&lt;/bearing12&gt;
+&lt;intersection1234&gt;40.458347,-76.203682&lt;/intersection1234&gt;
+&lt;destination12&gt;40,-73&lt;/destination12&gt;
+
+:)</query><query name="3-Linestring(xqy)" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: 
+//Functions
+cts:linestring( (cts:point(37, -12), cts:point(37, -12) ) =&gt; returns a geospatial linestring value[ Constructor ]
+cts:linestring-vertices($linestring) =&gt; Returns a linestring's vertices[ Basic Operation ]
+geo:linestring-concat($linestrings) construct a linestring by concatenating the vertices of the input linestrings[ Additional Operations ]
+geo:linestring-reverse($linestring) construct a linestring with the vertices in reverse order.[ Additional Operations ]
+geo:bounding-boxes($region) returns a sequence of boxes that bound the given region[ Additional Operations ]
+geo:shortest-distance returns the great circle distance between a point and a region[ Additional Operations ]
+geo:count-distinct-vertices($region) return a count of the distinct number of vertices in a region[ Additional Operations ]
+geo:region-approximate($region, threshold) returns a simplified approximation of the region[ Additional Operations ]
+:)
+
+xquery version "1.0-ml";
+import module namespace geo = "http://marklogic.com/geospatial"
+       at "/MarkLogic/geospatial/geospatial.xqy";
+
+(: Constructors :)
+let $linestring1 := cts:linestring( (cts:point(37.5, -122), cts:point(37, -122), cts:point(36.5,-122) ))
+let $linestring2 := cts:linestring( (cts:point(37.5, -12.5), cts:point(37, -122.5), cts:point(36.5,-122.5) ) )
+
+(: Basic Operations :)
+let $vertices :=  cts:linestring-vertices($linestring1)
+
+(: Additional Operations :)
+let $concat := geo:linestring-concat(($linestring1, $linestring2))
+let $reverse := geo:linestring-reverse($linestring1)  
+let $bounding-box := geo:bounding-boxes($linestring1) 
+let $shortest-distance := geo:shortest-distance( cts:point(36, -122),$linestring1 )
+let $distinct-vertices := geo:count-distinct-vertices($linestring1)
+let $region-approximate := geo:region-approximate($linestring1, 400) 
+return
+(
+&lt;linestring1&gt;{$linestring1}&lt;/linestring1&gt;,
+&lt;linestring2&gt;{$linestring2}&lt;/linestring2&gt;,
+&lt;vertices&gt;{$vertices}&lt;/vertices&gt;,
+&lt;concat&gt;{$concat}&lt;/concat&gt;,
+&lt;reverse&gt;{$reverse}&lt;/reverse&gt;,
+&lt;bounding-box&gt;{$bounding-box}&lt;/bounding-box&gt;,
+&lt;shortest-distance&gt;{$shortest-distance}&lt;/shortest-distance&gt;,
+&lt;distinct-vertices&gt;{$distinct-vertices}&lt;/distinct-vertices&gt;,
+&lt;region-approximate&gt;{$region-approximate}&lt;/region-approximate&gt;
+)
+
+(: Solution
+
+//Constructors
+&lt;linestring1&gt;LINESTRING(-122 37.5,-122 37,-122 36.5)&lt;/linestring1&gt;
+&lt;linestring2&gt;LINESTRING(-12.5 37.5,-122.5 37,-122.5 36.5)&lt;/linestring2&gt;
+
+//Basic operation
+&lt;vertices&gt;37.5,-122 37,-122 36.5,-122&lt;/vertices&gt;
+
+//Additional Operations
+&lt;concat&gt;LINESTRING(-122 37.5,-122 37,-122 36.5,-12.5 37.5,-122.5 37,-122.5 36.5)&lt;/concat&gt;
+&lt;reverse&gt;LINESTRING(-122 36.5,-122 37,-122 37.5)&lt;/reverse&gt;
+&lt;bounding-box&gt;[36.5, -122.00001, 37.5, -122.00001]&lt;/bounding-box&gt;
+&lt;shortest-distance&gt;34.4748460745432&lt;/shortest-distance&gt;
+&lt;distinct-vertices&gt;3&lt;/distinct-vertices&gt;
+&lt;region-approximate&gt;LINESTRING(-122.00001 37.5,-122.00001 36.5)&lt;/region-approximate&gt;
+:)
+ </query><query name="4-circle(xqy)" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: //Functions
+cts:circle(20, cts:point(37.655983, -122.425525)) =&gt; Returns a geospatial circle value.[ Constructor ]
+cts:circle-center($circle) =&gt; Returns a circle's center point[ Basic Operation ]
+cts:circle-radius($circle) =&gt; Returns a circle's radius[ Basic Operation ]
+geo:interior-point($region) returns a point inside the region[ Additional Operations ]
+geo:distance-convert($distance, $unit1, $unit2) converts a distance from one unit of measure to another[ Additional Operations ]
+:)
+
+
+xquery version "1.0-ml";
+import module namespace geo = "http://marklogic.com/geospatial" at "/MarkLogic/geospatial/geospatial.xqy";
+
+(: Constructor :)
+let $circle :=  cts:circle(20, cts:point(37.655983, -122.425525))  
+
+(: Basic Operations :)
+let $circle-center :=     cts:circle-center($circle)  
+let $circle-radius :=   cts:circle-radius($circle) 
+
+(: Additional Operations :)
+let $interior-point :=  geo:interior-point($circle)  
+let $distance-convert :=    geo:distance-convert(15, "meters", "miles")  
+return (
+&lt;circle&gt;{$circle}&lt;/circle&gt;,
+&lt;circle-center&gt;{$circle-center}&lt;/circle-center&gt;,
+&lt;circle-radius&gt;{$circle-radius}&lt;/circle-radius&gt;,
+&lt;interior-point&gt;{$interior-point}&lt;/interior-point&gt;,
+&lt;distance-convert&gt;{$distance-convert}&lt;/distance-convert&gt;
+)
+
+(: Solution
+
+(: Constructor :)
+&lt;circle&gt;@20 37.655983,-122.42552&lt;/circle&gt;
+
+(: Basic Operations :)
+&lt;circle-center&gt;37.655983,-122.42552&lt;/circle-center&gt;
+&lt;circle-radius&gt;20&lt;/circle-radius&gt;
+
+(: Additional Operations :)
+&lt;interior-point&gt;37.655983,-122.42552&lt;/interior-point&gt;
+&lt;distance-convert&gt;0.00932056788356001&lt;/distance-convert&gt;
+:)</query><query name="5-box(xqy)" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: //Functions
+cts:box(45, -122, 78, 30) =&gt; Returns a geospatial box value[ Constructor ]
+cts:box-east($box)=&gt; Returns a box's eastern boundary.[ Basic Operation ]
+cts:box-north($box)=&gt; Returns a box's northern boundary.[ Basic Operation ]
+cts:box-south($box) =&gt; Returns a box's southern boundary.[ Basic Operation ]
+cts:box-west($box) =&gt; Returns a box's western boundary. [ Basic Operation ]
+geo:box-intersects( $box, $circle) =&gt; Returns true if the box intersects with a region.[ Additional Operations ]
+geo:approx-center($region) returns the center point of the region[ Additional Operations ]
+geo:count-vertices($region) returns a count of the number of vertices in a region[ Additional Operations ]
+:)
+
+xquery version "1.0-ml";
+
+(: Constructors :)
+let $box := cts:box(45, -122, 78, 30) 
+let $circle :=  cts:circle(20, cts:point(37.655983, -122.425525))
+
+(: Basic Operations :)
+let $box-east := cts:box-east($box)
+let $box-north := cts:box-north($box)
+let $box-south := cts:box-south($box)  
+let $box-west := cts:box-west($box)  
+
+(: Additional Operations :)
+let $box-intersects := geo:box-intersects( $box, $circle)  
+let $box-center := geo:approx-center($box)  
+let $box-vertices := geo:count-vertices($box)  
+return (
+&lt;box&gt;{$box}&lt;/box&gt;,
+&lt;box-east&gt;{$box-east}&lt;/box-east&gt;,
+&lt;box-north&gt;{$box-north}&lt;/box-north&gt;,
+&lt;box-south&gt;{$box-south}&lt;/box-south&gt;,
+&lt;box-west&gt;{$box-west}&lt;/box-west&gt;,
+&lt;box-intersects&gt;{$box-intersects}&lt;/box-intersects&gt;,
+&lt;box-center&gt;{$box-center}&lt;/box-center&gt;,
+&lt;box-vertices&gt;{$box-vertices}&lt;/box-vertices&gt;
+)
+
+(: //Solution
+
+//Constructor 
+&lt;box&gt;[45, -122, 78, 30]&lt;/box&gt;
+
+//Basic Operations 
+&lt;box-east&gt;30&lt;/box-east&gt;
+&lt;box-north&gt;78&lt;/box-north&gt;
+&lt;box-south&gt;45&lt;/box-south&gt;
+&lt;box-west&gt;-122&lt;/box-west&gt;
+
+//Additional Operations 
+&lt;box-intersects&gt;false&lt;/box-intersects&gt;
+&lt;box-center&gt;61.5,-46.000004&lt;/box-center&gt;
+&lt;box-vertices&gt;4&lt;/box-vertices&gt;
+
+:)</query><query name="6-polygon(xqy)" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: //Functions
+cts:polygon(cts:point( 10 , -12 ),cts:point( 32 , 42 ),cts:point( 67 ,90 )) =&gt; Returns a geospatial polygon value.[ Constructor ]
+geo:circle-polygon(cts:circle(7,cts:point(10,20)),4) constructs a polygon approximating a circle [ Constructor ]
+cts:polygon-vertices( $polygon) =&gt; Returns a polygon's vertices[ Basic Operation ]
+geo:polygon-contains($polygon, $circle) =&gt; Returns true if the polygon contains a region.[ Additional Operations ]
+geo:polygon-intersects($polygon, $circle) =&gt; Returns true if the polygon intersects a region.[ Additional Operations ]
+geo:polygon-to-linestring($polygon) =&gt; Constructs a linestring from the vertices of a polygon[ Additional Operations ]
+geo:region-clean($region) fixes various problems with the region ( remove duplicate adjacent vertices)[ Additional Operations ]
+:)
+
+xquery version "1.0-ml";
+import module namespace geo = "http://marklogic.com/geospatial"
+       at "/MarkLogic/geospatial/geospatial.xqy";
+       
+(: Constructors :)
+let $point1 :=  cts:point( 10,-12 )
+let $point2 :=  cts:point(32,42 )
+let $point3 :=   cts:point(67,90 )
+let $polygon :=cts:polygon(($point1 ,$point2 ,$point3 ))
+let $point := cts:point(1,1)
+let $circle :=  cts:circle(20, $point)
+let $circle-polygon := geo:circle-polygon($circle,4)  
+
+(: Basic Operations :)
+let $polygon-vertices := cts:polygon-vertices( $polygon)  
+
+(: Additional Operations :)
+let $polygon-contains := geo:polygon-contains($polygon, $circle) 
+let $polygon-intersects := geo:polygon-intersects($polygon, $circle)  
+let $polygon-to-linestring := geo:polygon-to-linestring($polygon)  
+let $region-clean := geo:region-clean($polygon)  
+return (
+&lt;polygon&gt;{$polygon}&lt;/polygon&gt;,
+&lt;circle-polygon&gt;{$circle-polygon}&lt;/circle-polygon&gt;,
+&lt;polygon-vertices&gt;{$polygon-vertices}&lt;/polygon-vertices&gt;,
+&lt;polygon-contains&gt;{$polygon-contains}&lt;/polygon-contains&gt;,
+&lt;polygon-intersects&gt;{$polygon-intersects}&lt;/polygon-intersects&gt;,
+&lt;polygon-to-linestring&gt;{$polygon-to-linestring}&lt;/polygon-to-linestring&gt;,
+&lt;region-clean&gt;{$region-clean}&lt;/region-clean&gt;
+)
+
+(: //Solution
+
+//Constructors
+&lt;polygon&gt;10,-12 32,42 67,90 10,-12&lt;/polygon&gt;
+&lt;circle-polygon&gt;1.2910872,1 1.2058229,1.2044971 0.99998719,1.2891834 0.794164,1.2044716 0.70891231,1 0.794164,0.79552829 0.99998719,0.71081656 1.2058229,0.79550284 1.2910872,1&lt;/circle-polygon&gt;
+
+//Basic Operations
+&lt;polygon-vertices&gt;10,-12 32,42 67,90 10,-12&lt;/polygon-vertices&gt;
+
+//Additional Operations
+&lt;polygon-contains&gt;false&lt;/polygon-contains&gt;
+&lt;polygon-intersects&gt;false&lt;/polygon-intersects&gt;
+&lt;polygon-to-linestring&gt;LINESTRING(-12 10,42 32,90 67)&lt;/polygon-to-linestring&gt;
+&lt;region-clean&gt;10,-12 32,42 67,90 10,-12&lt;/region-clean&gt;
+
+:)</query><query name="7-complex-polygon(xqy)" focus="true" active="true" content-source="as:17543607842490988103:" mode="xquery">(: //Functions
+cts:complex-polygon($outer-polygon, $inner-polygon) =&gt; Returns a geospatial complex polygon value.[ Constructor ]
+cts:complex-polygon-outer($complex-polygon) =&gt; Returns a complex polygon's outer polygon.[ Basic Operation ]
+cts:complex-polygon-outer($complex-polygon) =&gt; Returns a complex polygon's inner polygon.[ Basic Operation ]
+geo:complex-polygon-intersects($complex-polygon, $circle) =&gt; Returns true if the complex-polygon intersects with a region.[ Additional Operations ]
+geo:complex-polygon-contains($complex-polygon, $circle) =&gt; Returns true if the complex-polygon contains a region.[ Additional Operations ]
+geo:region-affine-transform($region, $transform) perform transform(translation/scaling/rotation/shearing/reflection) on a  region[ Additional Operations ]
+geo:remove-duplicate-vertices($region) removes duplicate (adjacent) vertices[ Additional Operations ]
+:)
+
+xquery version "1.0-ml";
+import module namespace geo = "http://marklogic.com/geospatial"
+       at "/MarkLogic/geospatial/geospatial.xqy";
+  
+(: Constructors :)
+let $polygon1 := cts:polygon((cts:point(1.5,0),cts:point(2.5,1),cts:point(1.5,2),cts:point(0.5,2),cts:point(0.5,0),cts:point(1.5,0)))
+let $polygon2 := cts:polygon((cts:point(2.0,2.0),cts:point(2.0,4.0),cts:point(8.0,4.0),cts:point(12.0,4.0),cts:point(12.0,10.0),cts:point(8.0,10.0),cts:point(5.0,14.0)))
+let $complex-polygon := cts:complex-polygon($polygon1, $polygon2) 
+let $circle :=  cts:circle(20, cts:point(37.655983, -122.425525)) 
+
+(: Basic Operations :)
+let $complex-polygon-outer := cts:complex-polygon-outer($complex-polygon) 
+let $complex-polygon-inner := cts:complex-polygon-inner($complex-polygon) 
+
+(: Additional Operations :)
+let $complex-polygon-intersects := geo:complex-polygon-intersects($complex-polygon, $circle) 
+let $complex-polygon-contains := geo:complex-polygon-contains($complex-polygon, $circle) 
+let $reflection := geo:region-affine-transform($complex-polygon, xdmp:from-json-string('{reflection: { lineR: {start: [2.5,0], end:[2.5,2.0]} }}'))
+let $rotation := geo:region-affine-transform($complex-polygon, xdmp:from-json-string('{rotation: {angle:'||math:radians(45)||', prot:[2.0,2.0]}}'))
+let $scaling :=   geo:region-affine-transform($complex-polygon,  xdmp:from-json-string('{scaling: {sx: 2.0, sy: 2.0}}'))
+let $translation := geo:region-affine-transform($complex-polygon, xdmp:from-json-string('{translation: {tx:10,ty:10}}'   )) 
+let $remove-duplicate-vertices := geo:remove-duplicate-vertices($complex-polygon) 
+return (
+&lt;complex-polygon&gt;{$complex-polygon}&lt;/complex-polygon&gt;,
+&lt;complex-polygon-outer&gt;{$complex-polygon-outer}&lt;/complex-polygon-outer&gt;,
+&lt;complex-polygon-inner&gt;{$complex-polygon-inner}&lt;/complex-polygon-inner&gt;,
+&lt;complex-polygon-intersects&gt;{$complex-polygon-intersects}&lt;/complex-polygon-intersects&gt;,
+&lt;complex-polygon-contains&gt;{$complex-polygon-contains}&lt;/complex-polygon-contains&gt;,
+&lt;reflection&gt;{$reflection}&lt;/reflection&gt;,
+&lt;rotation&gt;{$rotation}&lt;/rotation&gt;,
+&lt;scaling&gt;{$scaling}&lt;/scaling&gt;,
+&lt;translation&gt;{$translation}&lt;/translation&gt;,
+&lt;remove-duplicate-vertices&gt;{$remove-duplicate-vertices}&lt;/remove-duplicate-vertices&gt;
+)
+
+(: Solution
+
+//Constructors
+&lt;complex-polygon&gt;POLYGON((0 1.5,1 2.5,2 1.5,2 0.5,0 0.5,0 1.5), (2 2,4 2,4 8,4 12,10 12,10 8,14 5,2 2))&lt;/complex-polygon&gt;
+
+//Basic Operations
+&lt;complex-polygon-outer&gt;1.5,0 2.5,1 1.5,2 0.5,2 0.5,0 1.5,0&lt;/complex-polygon-outer&gt;
+&lt;complex-polygon-inner&gt;2,2 2,4 8,4 12,4 12,10 8,10 5,14 2,2&lt;/complex-polygon-inner&gt;
+
+//Additional Operations
+&lt;complex-polygon-intersects&gt;false&lt;/complex-polygon-intersects&gt;
+&lt;complex-polygon-contains&gt;false&lt;/complex-polygon-contains&gt;
+&lt;reflection&gt;POLYGON((0 3.5,1 2.5,2 3.5,2 4.5,0 4.5,0 3.5), (2 3,4 3,4 -3,4 -7,10 -7,10 -3,14 0,2 3))&lt;/reflection&gt;
+&lt;rotation&gt;POLYGON((0.23223305 3.0606602,1.6464466 3.0606602,1.6464466 1.6464466,0.93933983 0.93933983,-0.47487373 2.3535534,0.23223305 3.0606602), (2 2,3.4142136 0.58578644,7.6568542 4.8284271,10.485281 7.6568542,14.727922 3.4142136,11.899495 0.58578644,12.606602 -4.363961,2 2))&lt;/rotation&gt;
+&lt;scaling&gt;POLYGON((0 3,2 5,4 3,4 1,0 1,0 3), (4 4,8 4,8 16,8 24,20 24,20 16,28 10,4 4))&lt;/scaling&gt;
+&lt;translation&gt;POLYGON((10 11.5,11 12.5,12 11.5,12 10.5,10 10.5,10 11.5), (12 12,14 12,14 18,14 22,20 22,20 18,24 15,12 12))&lt;/translation&gt;
+&lt;remove-duplicate-vertices&gt;POLYGON((0 1.5,1 2.5,2 1.5,2 0.5,0 0.5,0 1.5), (2 2,4 2,4 8,4 12,10 12,10 8,14 5,2 2))&lt;/remove-duplicate-vertices&gt;
+
+:)</query></workspace></export>

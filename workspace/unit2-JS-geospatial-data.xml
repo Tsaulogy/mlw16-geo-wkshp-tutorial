@@ -1,0 +1,688 @@
+<export><workspace name="unit2-JS-geospatial-data"><query name="1-kml-constructors" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //1-KML Constructors
+geokml.point(point) ==&gt; returns cts.point
+geokml.linestring(linestring) ==&gt; returns cts.linestring
+geokml.box(box) ==&gt; returns cts.box
+geokml.polygon(polygon) ==&gt; returns cts.polygon
+geokml.complex-polygon(outer,$nner) ==&gt; returns cts.complex-polygon
+*/
+var geokml = require('/MarkLogic/geospatial/kml.xqy');
+
+var pointNode = xdmp.unquote('&lt;kml:Point xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:coordinates&gt;-127.24,12.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;').next().value.root
+var lineNode = xdmp.unquote('&lt;kml:LineString xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:coordinates&gt;-110.45,45.256 -109.48,46.46 -109.86,43.84&lt;/kml:coordinates&gt;&lt;/kml:LineString&gt;').next().value.root
+var line1Node = xdmp.unquote('&lt;kml:LineString xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:coordinates&gt;-127.24,12.5 -128.24,12.75&lt;/kml:coordinates&gt;&lt;/kml:LineString&gt;').next().value.root
+var boxNode = xdmp.unquote('&lt;kml:LatLongBox xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:south&gt;45&lt;/kml:south&gt;&lt;kml:west&gt;-122&lt;/kml:west&gt;&lt;kml:north&gt;78&lt;/kml:north&gt;&lt;kml:east&gt;30&lt;/kml:east&gt;&lt;/kml:LatLongBox&gt;').next().value.root
+var polyNode =   xdmp.unquote('&lt;kml:Polygon xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;1,5 1,8 6,8 7,5 1,5&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;&lt;/kml:Polygon&gt;').next().value.root
+var compPolyNode =   xdmp.unquote('&lt;kml:Polygon xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;10,0 0,10 10,10 10,0 0,0 10,0&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;&lt;kml:innerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;0,5 0,7 5,7 5,5 0,5&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:innerBoundaryIs&gt;&lt;/kml:Polygon&gt;').next().value.root
+
+var mlPoint = geokml.point(pointNode)
+var mlLine = geokml.linestring(lineNode)
+var mlLine1 = geokml.linestring(line1Node)
+var mlBox = geokml.box(boxNode)
+var mlPolygon = geokml.polygon(polyNode)
+var mlComplexPolygon = geokml.complexPolygon(compPolyNode)
+
+var parsePoint = geokml.point(pointNode)
+var parseLine = geokml.linestring(lineNode)
+var parseLine1 = geokml.linestring(line1Node)
+var parseBox = geokml.box(boxNode)
+var parsePolygon = geokml.polygon(polyNode)
+var parseComplexPolygon = geokml.complexPolygon(compPolyNode)
+
+var result={"pointNode":pointNode,"lineNode":line1Node,"boxNode":boxNode,"polyNode":polyNode,"compPolyNode":compPolyNode,
+            "mlPoint":mlPoint,"mlLine":mlLine,"mlLine1":mlLine1,"mlBox":mlBox,"mlPolygon":mlPolygon,"mlComplexPolygon":mlComplexPolygon,
+            "parsePoint":parsePoint,"parseLine":parseLine,"parseLine1":parseLine1,"parseBox":parseBox,"parsePolygon":parsePolygon,"parseComplexPolygon":parseComplexPolygon}
+result
+               
+/* //Solution 
+Object 
+{
+"pointNode": "&lt;kml:Point xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:coordinates&gt;-127.24,12.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;", 
+"lineNode": "&lt;kml:LineString xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:coordinates&gt;-127.24,12.5 -128.24,12.75&lt;/kml:coordinates&gt;&lt;/kml:LineString&gt;", 
+"boxNode": "&lt;kml:LatLongBox xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:south&gt;45&lt;/kml:south&gt;&lt;kml:west&gt;-122&lt;/kml:west&gt;&lt;kml:north&gt;78&lt;/kml:north&gt;&lt;kml:east&gt;30&lt;/kml:east&gt;&lt;/kml:LatLongBox&gt;", 
+"polyNode": "&lt;kml:Polygon xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;1,5 1,8 6,8 7,5 1,5&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;&lt;/kml:Polygon&gt;", 
+"compPolyNode": "&lt;kml:Polygon xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;10,0 0,10 10,10 10,0 0,0 10,0&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;&lt;kml:innerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;0,5 0,7 5,7 5,5 0,5&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:innerBoundaryIs&gt;&lt;/kml:Polygon&gt;", 
+
+"mlPoint": "12.5,-127.24", 
+"mlLine": "LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)", 
+"mlLine1": "LINESTRING(-127.24 12.5,-128.24 12.75)", 
+"mlBox": "[45, -122, 78, 30]", 
+"mlPolygon": "5,1 8,1 8,6 5,7 5,1", 
+"mlComplexPolygon": "POLYGON((10 0,0 10,10 10,10 0,0 0,10 0), (0 5,0 7,5 7,5 5,0 5))", 
+
+"parsePoint": "12.5,-127.24", 
+"parseLine": "LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)", 
+"parseLine1": "LINESTRING(-127.24 12.5,-128.24 12.75)", 
+"parseBox": "[45, -122, 78, 30]", 
+"parsePolygon": "5,1 8,1 8,6 5,7 5,1", 
+"parseComplexPolygon": "POLYGON((10 0,0 10,10 10,10 0,0 0,10 0), (0 5,0 7,5 7,5 5,0 5))"
+}
+
+*/</query><query name="2-kml-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //2-KML Functions
+geokml.toKml(cts.region) ==&gt; returns KML region //Circle not supported
+geokml.parseKml( KML region elements) ==&gt; returns cts:region
+geokml.interiorPolygon( KML region) ==&gt; returns cts:region
+*/
+
+var geokml = require('/MarkLogic/geospatial/kml.xqy');
+
+var toPoint = geokml.toKml(cts.point("12.5,-127.24"))
+var toLine = geokml.toKml(cts.linestring("LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)"))
+var toLine1 = geokml.toKml(cts.linestring([cts.point("12.5,-127.24"),cts.point("12.75,-128.24")]))
+var toBox = geokml.toKml(cts.box(45, -122, 78, 30))
+var toPoly = geokml.toKml(cts.polygon([cts.point(5.0,1.0),cts.point(8.0,1.0),cts.point(8.0,6.0),cts.point(5.0,7.0)]))
+var toComplexPoly = geokml.toKml(cts.complexPolygon(
+                    cts.polygon([cts.point(0,10),cts.point(10,0),cts.point(10,10),cts.point(0,10),cts.point(0,0)]),
+                    cts.polygon([cts.point(5,0),cts.point(7,0),cts.point(7,5),cts.point(5,5),cts.point(5,0)])))
+
+var compPolyNode =   xdmp.unquote('&lt;kml:Polygon xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;10,0 0,10 10,10 10,0 0,0 10,0&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;&lt;kml:innerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;0,5 0,7 5,7 5,5 0,5&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:innerBoundaryIs&gt;&lt;/kml:Polygon&gt;').next().value.root
+var interiorPoly = geokml.interiorPolygon(compPolyNode)
+var result = { "toPoint":toPoint, "toLine":toLine, "toLine1":toLine1, "toBox":toBox, "toPoly":toPoly,"toComplexPoly":toComplexPoly,"interiorPoly":interiorPoly}
+result
+  
+/*//Solution
+Object 
+{
+"toPoint": "&lt;kml:Point xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:coordinates&gt;-127.24,12.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;", 
+"toLine": "&lt;kml:LineString xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:coordinates&gt;-110.45,45.256 -109.48,46.46 -109.86,43.84&lt;/kml:coordinates&gt;&lt;/kml:LineString&gt;", 
+"toLine1": "&lt;kml:LineString xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:coordinates&gt;-127.24,12.5 -128.24,12.75&lt;/kml:coordinates&gt;&lt;/kml:LineString&gt;", 
+"toBox": "&lt;kml:LatLongBox xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:south&gt;45&lt;/kml:south&gt;&lt;kml:west&gt;-122&lt;/kml:west&gt;&lt;kml:north&gt;78&lt;/kml:north&gt;&lt;kml:east&gt;30&lt;/kml:east&gt;&lt;/kml:LatLongBox&gt;", 
+"toPoly": "&lt;kml:Polygon xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;1,5 1,8 6,8 7,5 1,5&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;&lt;/kml:Polygon&gt;", 
+"toComplexPoly": "&lt;kml:Polygon xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;10,0 0,10 10,10 10,0 0,0 10,0&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;&lt;kml:innerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;0,5 0,7 5,7 5,5 0,5&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:innerBoundaryIs&gt;&lt;/kml:Polygon&gt;", 
+"interiorPoly": "5,0 7,0 7,5 5,5 5,0"
+}
+
+*/</query><query name="3-kml-geo-query" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*//3-KML query function
+geokml.geospatialQuery(region) ==&gt; returns cts.query
+Run this twice
+*/
+
+declareUpdate();
+var geokml = require('/MarkLogic/geospatial/kml.xqy');
+
+var doc = "&lt;root xmlns:kml='http://www.opengis.net/kml/2.2'&gt;&lt;item&gt;&lt;kml:point&gt;10.5 30.0&lt;/kml:point&gt;&lt;/item&gt;&lt;item&gt;&lt;kml:point&gt;15.35 35.34&lt;/kml:point&gt;&lt;/item&gt;&lt;item&gt;&lt;kml:point&gt;5.11 40.55&lt;/kml:point&gt;&lt;/item&gt;&lt;/root&gt;"
+var insert =  xdmp.documentInsert("/pointsKml.xml",xdmp.unquote(doc));
+var docContents = fn.doc("/pointsKml.xml") 
+
+var box1 = xdmp.unquote('&lt;kml:LatLongBox xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:south&gt;20.0&lt;/kml:south&gt;&lt;kml:west&gt;10.0&lt;/kml:west&gt;&lt;kml:north&gt;40.0&lt;/kml:north&gt;&lt;kml:east&gt;35.0&lt;/kml:east&gt;&lt;/kml:LatLongBox&gt;').next().value.root
+var box2 = xdmp.unquote('&lt;kml:LatLongBox xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:south&gt;20.0&lt;/kml:south&gt;&lt;kml:west&gt;10.0&lt;/kml:west&gt;&lt;kml:north&gt;35.0&lt;/kml:north&gt;&lt;kml:east&gt;40.0&lt;/kml:east&gt;&lt;/kml:LatLongBox&gt;').next().value.root
+
+var queryRes1 = cts.search(geokml.geospatialQuery(cts.box(20.0, 10.0, 40.0, 35.0)))
+var queryRes2 = cts.search(geokml.geospatialQuery(cts.box(20.0, 10.0, 35.0, 40.0)))
+var queryRes3 = cts.search(geokml.geospatialQuery(geokml.box(box1)))
+var queryRes4 = cts.search(geokml.geospatialQuery(geokml.box(box2)))
+                           
+var result = {"insert":insert, "docContents":docContents, "queryRes1":queryRes1, "queryRes2":queryRes2, "queryRes3":queryRes3, "queryRes4":queryRes4}
+result
+
+/* // Solution
+{
+"insert": null, 
+"docContents": "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;root xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;item&gt;&lt;kml:point&gt;10.5 30.0&lt;/kml:point&gt;&lt;/item&gt;&lt;item&gt;&lt;kml:point&gt;15.35 35.34&lt;/kml:point&gt;&lt;/item&gt;&lt;item&gt;&lt;kml:point&gt;5.11 40.55&lt;/kml:point&gt;&lt;/item&gt;&lt;/root&gt;", 
+"queryRes1": null, 
+"queryRes2": null,
+"queryRes3": null, 
+"queryRes4": null
+}
+*/
+ </query><query name="4-kml-geo-elequery" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*//4-KML query from elements function
+geospatialQueryFromElements(region) ==&gt; returns cts.query
+Run this twice
+*/
+  
+declareUpdate();
+var geokml = require('/MarkLogic/geospatial/kml.xqy');
+
+xdmp.documentInsert('/pointsKml_1.xml',
+  xdmp.unquote("&lt;root xmlns:kml='http://www.opengis.net/kml/2.2'&gt;&lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;30.0,10.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;&lt;/root&gt;"));
+xdmp.documentInsert('/pointsKml_2.xml',
+  xdmp.unquote("&lt;root xmlns:kml='http://www.opengis.net/kml/2.2'&gt;&lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;35.34,15.35&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;&lt;/root&gt;"));
+xdmp.documentInsert('/pointsKml_3.xml',
+  xdmp.unquote("&lt;root xmlns:kml='http://www.opengis.net/kml/2.2'&gt;&lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;40.55,5.11&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;&lt;/root&gt;"));
+
+var box1 = xdmp.unquote('&lt;kml:LatLongBox xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:north&gt;20.0&lt;/kml:north&gt;&lt;kml:south&gt;10.0&lt;/kml:south&gt;&lt;kml:east&gt;40.0&lt;/kml:east&gt;&lt;kml:west&gt;35.0&lt;/kml:west&gt;&lt;/kml:LatLongBox&gt;').next().value.root
+var box2 = xdmp.unquote('&lt;kml:LatLongBox xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:north&gt;20.0&lt;/kml:north&gt;&lt;kml:south&gt;10.0&lt;/kml:south&gt;&lt;kml:east&gt;35.0&lt;/kml:east&gt;&lt;kml:west&gt;40.0&lt;/kml:west&gt;&lt;/kml:LatLongBox&gt;').next().value.root
+ 
+var results = [];
+results.push(cts.search(geokml.geospatialQueryFromElements(box1)).next().value.xpath('//item'));
+results.push(cts.search(geokml.geospatialQueryFromElements(box2)).next().value.xpath('//item'));
+                      
+results
+
+/* // Solution
+Array 
+[
+"&lt;item xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;35.34,15.35&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;", 
+"&lt;item xmlns:kml=\"http://www.opengis.net/kml/2.2\"&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;30.0,10.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;"
+]
+*/
+ </query><query name="5-wkt-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //5-WKT functions
+geo:validate-wkt($wkt) ==&gt; returns true if $wkt is a valid Marklogic region
+geo:parse-wkt($wkt) ==&gt; returns cts:region
+geo:to-wkt(cts:region) ==&gt; returns the wkt region
+Circle and box not supported
+*/
+var geo = require("/MarkLogic/geospatial/geospatial");
+
+var isWktPoint = geo.validateWkt("POINT (30 10)")
+var isWktLine = geo.validateWkt('LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)');
+var isWktPolygon = geo.validateWkt("POLYGON((0 0, 0 10, 10 10, 10 0, 0 0), (0 5, 0 7, 5 7, 5 5, 0 5))")
+var isWktMultipoint = geo.validateWkt("MULTIPOINT ((10 40), (40 30), (20 20), (30 10))")
+var isWktMultilinestring =  geo.validateWkt("MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))")
+var isWktMultipolygon =   geo.validateWkt("MULTIPOLYGON (((30 20, 10 40, 45 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))")
+var isWktgeocoll =  geo.validateWkt("GEOMETRYCOLLECTION(POINT(4 6),LINESTRING(4 6,7 10))")
+ 
+var parseWktPoint = geo.parseWkt('POINT(-112.25 47.1)');
+ var parseWktLine = geo.parseWkt('LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)');
+var parseWktPoly = geo.parseWkt("POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))") 
+var parseWktCompPoly = geo.parseWkt("POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))")
+var parseWktMultiPoint = geo.parseWkt("MULTIPOINT ((10 40), (40 30), (20 20), (30 10))")
+var parseWktMultiLine = geo.parseWkt("MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))")
+var parseWktMultiPoly = geo.parseWkt("MULTIPOLYGON (((30 20, 10 40, 45 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))")
+var parseWktEmpty = geo.parseWkt("POINT EMPTY")
+var parseWktGeoColl = geo.parseWkt("GEOMETRYCOLLECTION(POINT(4 6),LINESTRING(4 6,7 10))")
+ 
+var toWktPoint = geo.toWkt(cts.point(36, 71));
+var toWktPolygon = geo.toWkt("POLYGON((0 0,0 10,10 10,10 0,0 0), (0 5,0 7,5 7,5 5,0 5))");
+var toWktempty = geo.toWkt("POINT EMPTY")
+  
+result = {"isWktPoint":isWktPoint,"isWktLine":isWktLine,"isWktPolygon":isWktPolygon,"isWktMultipoint":isWktMultipoint,
+          "isWktMultilinestring":isWktMultilinestring,"isWktMultipolygon":isWktMultipolygon,"isWktgeocoll":isWktgeocoll,
+          "parseWktPoint":parseWktPoint,"parseWktLine":parseWktLine,"parseWktPoly":parseWktPoly,"parseWktCompPoly":parseWktCompPoly,
+          "parseWktMultiPoint":parseWktMultiPoint,"parseWktMultiLine":parseWktMultiLine,"parseWktMultiPoly":parseWktMultiPoly,
+          "parseWktEmpty":parseWktEmpty,"parseWktGeoColl":parseWktGeoColl,
+          "toWktPoint":toWktPoint,"toWktPolygon":toWktPolygon,"toWktempty":toWktempty}
+result
+  
+/*//Solution
+Object 
+{
+"isWktPoint": true, 
+"isWktLine": true, 
+"isWktPolygon": true, 
+"isWktMultipoint": true, 
+"isWktMultilinestring": true, 
+"isWktMultipolygon": true, 
+"isWktgeocoll": true, 
+"parseWktPoint": "POINT(-112.25 47.1)", 
+"parseWktLine": "LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)", 
+"parseWktPoly": "POLYGON((30 10,10 20,20 40,40 40,30 10))", 
+"parseWktCompPoly": "POLYGON((35 10,10 20,15 40,45 45,35 10), (20 30,35 35,30 20,20 30))", 
+"parseWktMultiPoint": [
+"POINT(10 40)", 
+"POINT(40 30)", 
+"POINT(20 20)", 
+"POINT(30 10)"
+], 
+"parseWktMultiLine": [
+"LINESTRING(10 10,20 20,10 40)", 
+"LINESTRING(40 40,30 30,40 20,30 10)"
+], 
+"parseWktMultiPoly": [
+"POLYGON((30 20,10 40,45 40,30 20))", 
+"POLYGON((15 5,40 10,10 20,5 10,15 5))"
+], 
+"parseWktEmpty": "POINT EMPTY", 
+"parseWktGeoColl": [
+"POINT(4 6)", 
+"LINESTRING(4 6,7 10)"
+], 
+"toWktPoint": "POINT(71 36)", 
+"toWktPolygon": "POLYGON((0 0,0 10,10 10,10 0,0 0), (0 5,0 7,5 7,5 5,0 5))", 
+"toWktempty": "POINT EMPTY"
+}
+*/</query><query name="6-wkb-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //6-WKB functions
+geo.validateWkb(wkb) ==&gt; returns true if $wkb is a valid Marklogic region
+geo.parseWkb(wkb) ==&gt; returns cts:region
+geo.toWkb(cts.region) ==&gt; returns the wkb region
+Circle and box not supported
+*/
+
+var pointToWkb = xdmp.describe(geo.toWkb(cts.point(36, 71)));
+
+var nbp = new NodeBuilder();
+nbp.addBinary("000000000140420000000000004051c00000000000")
+pointParseWkb = geo.parseWkb(nbp.toNode());
+
+var nbp = new NodeBuilder();
+nbp.addBinary("000000000140420000000000004051c00000000000")
+pointValidWkb = geo.validateWkb(nbp.toNode());
+
+var lineToWkb = xdmp.describe(geo.toWkb("LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)"));
+var nbl = new NodeBuilder();
+nbl.addBinary("00000000020000000340478ccccccccccdc05c10000000000040478ccccccccccdc05c133333333333404799999999999ac05c19999999999a")
+lineParseWkb = geo.parseWkb(nbl.toNode());
+
+var nbl = new NodeBuilder();
+nbl.addBinary("00000000020000000340478ccccccccccdc05c10000000000040478ccccccccccdc05c133333333333404799999999999ac05c19999999999a")
+lineValidWkb = geo.validateWkb(nbl.toNode());
+
+var mpToWkb = xdmp.describe(geo.toWkb("MULTIPOINT ((10 40), (20 20))"));
+var nbmp = new NodeBuilder();
+nbmp.addBinary("000000000700000002000000000140440000000000004024000000000000000000000140340000000000004034000000000000")
+mpValidWkb = geo.validateWkb(nbmp.toNode());
+
+var result = {"pointToWkb":pointToWkb, "pointParseWkb":pointParseWkb,"pointValidWkb":pointValidWkb,
+             "lineToWkb":lineToWkb, "lineParseWkb":lineParseWkb,"lineValidWkb":lineValidWkb,
+             "mpToWkb":mpToWkb,"mpValidWkb":mpValidWkb}
+result
+
+/*//Solution
+Object 
+{
+"pointToWkb": "binary{\"000000000140420000000000004051c00000000000\"}", 
+"pointParseWkb": "36,71", 
+"pointValidWkb": true, 
+"lineToWkb": "binary{\"00000000020000000340478ccccccccccdc05c10000000000040478ccccccccccdc05c133333333333404799999999999ac05c19999999999a\"}", 
+"lineParseWkb": "LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)", 
+"lineValidWkb": true, 
+"mpToWkb": "binary{\"000000000700000002000000000140440000000000004024000000000000000000000140340000000000004034000000000000\"}", 
+"mpValidWkb": false
+}
+*/</query><query name="7-gml-constructors" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //7-GML Constructors
+geogml.point(point) ==&gt; returns cts.point
+geogml.linestring(linestring) ==&gt; returns cts.linestring
+geogml.box(box) ==&gt; returns cts.box
+geogml.polygon(polygon) ==&gt; returns cts.polygon
+geogml.complex-polygon(outer,inner) ==&gt; returns cts.complex-polygon
+geogml.parseGml( GML region elements) ==&gt; returns cts:region
+
+*/
+var geogml = require('/MarkLogic/geospatial/gml.xqy');
+
+var pointNode = xdmp.unquote('&lt;gml:Point gml:id="nbb75e347ec72b3cf" srsName="ML:wgs84" srsDimension="2" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:pos&gt;40 -73&lt;/gml:pos&gt;&lt;/gml:Point&gt;').next().value.root
+var lineNode = xdmp.unquote('&lt;gml:LineString gml:id="nc7dc76ec58abb912" srsName="ML:wgs84" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:posList srsDimension="2"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/gml:posList&gt;&lt;/gml:LineString&gt;').next().value.root
+var circleNode = xdmp.unquote('&lt;gml:Circle xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:posList srsDimension="2"&gt;37.65598 -122.4255&lt;/gml:posList&gt;&lt;gml:radius uom="[mi_i]"&gt;20&lt;/gml:radius&gt;&lt;/gml:Circle&gt;').next().value.root
+var boxNode = xdmp.unquote('&lt;gml:Envelope gml:id="n4e36133858060fba" srsName="ML:wgs84" srsDimension="2" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:lowerCorner&gt;45 -122&lt;/gml:lowerCorner&gt;&lt;gml:upperCorner&gt;78 30&lt;/gml:upperCorner&gt;&lt;/gml:Envelope&gt;').next().value.root
+var polyNode =   xdmp.unquote('&lt;gml:Polygon gml:id="n6a680ce1dcf355f6" srsName="ML:wgs84" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:exterior&gt;&lt;gml:LinearRing&gt;&lt;gml:posList srsDimension="2"&gt;5 1 8 1 8 6 5 7 5 1&lt;/gml:posList&gt;&lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;&lt;/gml:Polygon&gt;').next().value.root
+var compPolyNode =   xdmp.unquote('&lt;gml:Polygon gml:id="n9e93ae5ce25feb00" srsName="ML:wgs84" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:exterior&gt;&lt;gml:LinearRing&gt;&lt;gml:posList srsDimension="2"&gt;5 1 8 1 8 6 5 7 5 1&lt;/gml:posList&gt;&lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;&lt;/gml:Polygon&gt;').next().value.root
+
+var mlPoint = geogml.point(pointNode)
+var mlLine = geogml.linestring(lineNode)
+var mlBox = geogml.box(boxNode)
+var mlPolygon = geogml.polygon(polyNode)
+var mlComplexPolygon = geogml.complexPolygon(compPolyNode)
+
+var parsePoint = geogml.point(pointNode)
+var parseLine = geogml.linestring(lineNode)
+var parseBox = geogml.box(boxNode)
+var parsePolygon = geogml.polygon(polyNode)
+var parseComplexPolygon = geogml.complexPolygon(compPolyNode)
+
+var result={"pointNode":pointNode,"lineNode":lineNode  ,"boxNode":boxNode,"polyNode":polyNode,"compPolyNode":compPolyNode,
+            "mlPoint":mlPoint,"mlLine":mlLine, "mlBox":mlBox,"mlPolygon":mlPolygon,"mlComplexPolygon":mlComplexPolygon,
+            "parsePoint":parsePoint,"parseLine":parseLine, "parseBox":parseBox,"parsePolygon":parsePolygon,"parseComplexPolygon":parseComplexPolygon}
+result
+ 
+/* //Solutions
+Object 
+{
+"pointNode": "&lt;gml:Point gml:id=\"nbb75e347ec72b3cf\" srsName=\"ML:wgs84\" srsDimension=\"2\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:pos&gt;40 -73&lt;/gml:pos&gt;&lt;/gml:Point&gt;", 
+"lineNode": "&lt;gml:LineString gml:id=\"nc7dc76ec58abb912\" srsName=\"ML:wgs84\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:posList srsDimension=\"2\"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/gml:posList&gt;&lt;/gml:LineString&gt;", 
+"boxNode": "&lt;gml:Envelope gml:id=\"n4e36133858060fba\" srsName=\"ML:wgs84\" srsDimension=\"2\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:lowerCorner&gt;45 -122&lt;/gml:lowerCorner&gt;&lt;gml:upperCorner&gt;78 30&lt;/gml:upperCorner&gt;&lt;/gml:Envelope&gt;", 
+"polyNode": "&lt;gml:Polygon gml:id=\"n6a680ce1dcf355f6\" srsName=\"ML:wgs84\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:exterior&gt;&lt;gml:LinearRing&gt;&lt;gml:posList srsDimension=\"2\"&gt;5 1 8 1 8 6 5 7 5 1&lt;/gml:posList&gt;&lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;&lt;/gml:Polygon&gt;", 
+"compPolyNode": "&lt;gml:Polygon gml:id=\"n9e93ae5ce25feb00\" srsName=\"ML:wgs84\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:exterior&gt;&lt;gml:LinearRing&gt;&lt;gml:posList srsDimension=\"2\"&gt;5 1 8 1 8 6 5 7 5 1&lt;/gml:posList&gt;&lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;&lt;/gml:Polygon&gt;", 
+
+"mlPoint": "40,-73", 
+"mlLine": "LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)", 
+"mlBox": "[45, -122, 78, 30]", 
+"mlPolygon": "5,1 8,1 8,6 5,7 5,1", 
+"mlComplexPolygon": "POLYGON((1 5,1 8,6 8,7 5,1 5))", 
+
+"parsePoint": "40,-73", 
+"parseLine": "LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)", 
+"parseBox": "[45, -122, 78, 30]", 
+"parsePolygon": "5,1 8,1 8,6 5,7 5,1", 
+"parseComplexPolygon": "POLYGON((1 5,1 8,6 8,7 5,1 5))"
+}
+
+*/</query><query name="8-gml-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*//8-GML Functions
+geogml.toGml(cts.region) ==&gt; returns GML region  
+geogml.interiorPolygon( GML region) ==&gt; returns cts:region
+*/
+
+var geogml = require('/MarkLogic/geospatial/gml.xqy');
+
+var gmlPoint = geogml.toGml(cts.point(40, -73))
+var gmlLine =geogml.toGml(cts.linestring("LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)"))
+var gmlBox =geogml.toGml(cts.box(45, -122, 78, 30))
+var gmlCircle =geogml.toGml(cts.circle(20, cts.point(37.655983, -122.425525)))
+var gmlPolygon =geogml.toGml(cts.polygon([cts.point(5.0,1.0),cts.point(8.0,1.0),cts.point(8.0,6.0),cts.point(5.0,7.0)]))
+var compPolyNode =   xdmp.unquote('&lt;gml:Polygon gml:id="n9e93ae5ce25feb00" srsName="ML:wgs84" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:exterior&gt;&lt;gml:LinearRing&gt;&lt;gml:posList srsDimension="2"&gt;5 1 8 1 8 6 5 7 5 1&lt;/gml:posList&gt;&lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;&lt;/gml:Polygon&gt;').next().value.root
+var mlComplexPolygon = geogml.complexPolygon(compPolyNode)
+var interiorPoly = geogml.interiorPolygon(compPolyNode)
+
+var result = { "gmlPoint":gmlPoint, "gmlLine":gmlLine, "gmlBox":gmlBox, "gmlCircle":gmlCircle, "gmlPolygon":gmlPolygon,"compPolyNode":compPolyNode,"mlComplexPolygon":mlComplexPolygon,"interiorPoly":interiorPoly}
+result
+ 
+/* //Solutions
+{
+"gmlPoint": "&lt;gml:Point gml:id=\"n30658d69e30c7da7\" srsName=\"ML:wgs84\" srsDimension=\"2\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:pos&gt;40 -73&lt;/gml:pos&gt;&lt;/gml:Point&gt;", 
+"gmlLine": "&lt;gml:LineString gml:id=\"n294f66973bc58044\" srsName=\"ML:wgs84\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:posList srsDimension=\"2\"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/gml:posList&gt;&lt;/gml:LineString&gt;", 
+"gmlBox": "&lt;gml:Envelope gml:id=\"n274d90c3168d122a\" srsName=\"ML:wgs84\" srsDimension=\"2\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:lowerCorner&gt;45 -122&lt;/gml:lowerCorner&gt;&lt;gml:upperCorner&gt;78 30&lt;/gml:upperCorner&gt;&lt;/gml:Envelope&gt;", 
+"gmlCircle": "&lt;gml:Circle gml:id=\"n547bb92a681c135e\" srsName=\"ML:wgs84\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:posList srsDimension=\"2\"&gt;37.65598 -122.4255&lt;/gml:posList&gt;&lt;gml:radius uom=\"[mi_i]\"&gt;20&lt;/gml:radius&gt;&lt;/gml:Circle&gt;", 
+"gmlPolygon": "&lt;gml:Polygon gml:id=\"ncf6110a0c690610d\" srsName=\"ML:wgs84\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:exterior&gt;&lt;gml:LinearRing&gt;&lt;gml:posList srsDimension=\"2\"&gt;5 1 8 1 8 6 5 7 5 1&lt;/gml:posList&gt;&lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;&lt;/gml:Polygon&gt;", 
+"compPolyNode": "&lt;gml:Polygon gml:id=\"n9e93ae5ce25feb00\" srsName=\"ML:wgs84\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:exterior&gt;&lt;gml:LinearRing&gt;&lt;gml:posList srsDimension=\"2\"&gt;5 1 8 1 8 6 5 7 5 1&lt;/gml:posList&gt;&lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;&lt;/gml:Polygon&gt;", 
+"mlComplexPolygon": "POLYGON((1 5,1 8,6 8,7 5,1 5))", 
+"interiorPoly": null
+}
+ */</query><query name="9-gml-geo-query" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*//9-GML query function
+geogml.geospatialQuery(region) ==&gt; returns cts.query
+*/
+
+declareUpdate();
+var geogml = require('/MarkLogic/geospatial/gml.xqy');
+
+var doc = "&lt;root xmlns:gml='http://www.opengis.net/gml/3.2'&gt;&lt;item&gt;&lt;gml:point&gt;10.5 30.0&lt;/gml:point&gt;&lt;/item&gt;&lt;item&gt;&lt;gml:point&gt;15.35 35.34&lt;/gml:point&gt;&lt;/item&gt;&lt;item&gt;&lt;gml:point&gt;5.11 40.55&lt;/gml:point&gt;&lt;/item&gt;&lt;/root&gt;"
+var insert =  xdmp.documentInsert("/pointsGml.xml",xdmp.unquote(doc));
+var docContents = fn.doc("/pointsGml.xml") 
+ 
+var box1 = xdmp.unquote('&lt;gml:Envelope gml:id=\"n4e36133858060fba\" srsName=\"ML:wgs84\" srsDimension=\"2\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:lowerCorner&gt;45 -122&lt;/gml:lowerCorner&gt;&lt;gml:upperCorner&gt;78 30&lt;/gml:upperCorner&gt;&lt;/gml:Envelope&gt;').next().value.root
+var box2 = xdmp.unquote('&lt;gml:LatLongBox xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:south&gt;20.0&lt;/gml:south&gt;&lt;gml:west&gt;10.0&lt;/gml:west&gt;&lt;gml:north&gt;35.0&lt;/gml:north&gt;&lt;gml:east&gt;40.0&lt;/gml:east&gt;&lt;/gml:LatLongBox&gt;').next().value.root
+ 
+var queryRes1 = cts.search(geogml.geospatialQuery(cts.box(20.0, 10.0, 40.0, 35.0)))
+var queryRes2 = cts.search(geogml.geospatialQuery(cts.box(20.0, 10.0, 35.0, 40.0)))
+var queryRes3 = cts.search(geogml.geospatialQuery(geogml.box(box1)))
+                          
+var result = {"insert":insert, "docContents":docContents, "queryRes1":queryRes1, "queryRes2":queryRes2, "queryRes3":queryRes3 }
+result
+
+ /* // Solution
+{
+"insert": null, 
+"docContents": "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;root xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;item&gt;&lt;gml:point&gt;10.5 30.0&lt;/gml:point&gt;&lt;/item&gt;&lt;item&gt;&lt;gml:point&gt;15.35 35.34&lt;/gml:point&gt;&lt;/item&gt;&lt;item&gt;&lt;gml:point&gt;5.11 40.55&lt;/gml:point&gt;&lt;/item&gt;&lt;/root&gt;", 
+"queryRes1": null, 
+"queryRes2": null, 
+"queryRes3": null
+}
+*/</query><query name="10-gml-geo-elequery" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //10-GML query from elements function
+geogml.geospatialQueryFromElements(region) ==&gt; returns cts.query
+*/
+
+declareUpdate();
+var geogml = require('/MarkLogic/geospatial/gml.xqy');
+
+xdmp.documentInsert('/pointsGml_1.xml',
+      xdmp.unquote("&lt;root xmlns:gml='http://www.opengis.net/gml/3.2'&gt;&lt;item&gt;&lt;gml:point&gt;15.35 35.34&lt;/gml:point&gt;&lt;/item&gt;&lt;/root&gt;"));
+xdmp.documentInsert('/pointsGml_2.xml',
+      xdmp.unquote("&lt;root xmlns:gml='http://www.opengis.net/gml/3.2'&gt;&lt;item&gt;&lt;gml:point&gt;30.0 10.5&lt;/gml:point&gt;&lt;/item&gt;&lt;/root&gt;"));
+xdmp.documentInsert('/pointsGml_3.xml',
+      xdmp.unquote("&lt;root xmlns:gml='http://www.opengis.net/gml/3.2'&gt;&lt;item&gt;&lt;gml:point&gt;40.55 5.11&lt;/gml:point&gt;&lt;/item&gt;&lt;/root&gt;"));
+ 
+var box1 = xdmp.unquote('&lt;gml:Envelope xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:lowerCorner&gt;10.0 35.0&lt;/gml:lowerCorner&gt;&lt;gml:upperCorner&gt;20.0 40.0&lt;/gml:upperCorner&gt;&lt;/gml:Envelope&gt;').next().value.root
+var results = [];
+results.push(cts.search(geogml.geospatialQueryFromElements(box1)).next().value.xpath('//item'));
+                      
+results
+ 
+/* //Solution
+Array 
+[
+[
+"&lt;item xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;10.5 30.0&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;", 
+"&lt;item xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;15.35 35.34&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;", 
+"&lt;item xmlns:gml=\"http://www.opengis.net/gml/3.2\"&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;5.11 40.55&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;"
+]
+]
+
+*/</query><query name="11-geojson-constructors" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*//11-geojson Constructors
+geojson.point(point) ==&gt; returns cts.point
+geojson.linestring(linestring) ==&gt; returns cts.linestring
+geojson.box(box) ==&gt; returns cts.box
+geojson.circle(circle) ==&gt; returns cts.circle
+geojson.polygon(polygon) ==&gt; returns cts.polygon
+geojson.complex-polygon(complex-polygon) ==&gt; returns cts.complex-polygon
+*/
+
+var geojson = require('/MarkLogic/geospatial/geojson.xqy');
+var point = geojson.point(
+  {type: 'Point', coordinates: [100.0,0.0]})
+var multiPoint = geojson.multiPoint(
+  { type: 'MultiPoint', coordinates: [ [100.0, 0.0], [101.0, 1.0] ] })
+var linestring =geojson.linestring(
+ { type: 'LineString', coordinates: [ [100.0, 0.0], [101.0, 1.0] ] })
+var multiLinestring = geojson.multiLinestring(
+  { type: 'MultiLineString',
+    coordinates: [
+        [ [100.0, 0.0], [101.0, 1.0] ],
+        [ [102.0, 2.0], [103.0, 3.0] ]
+  ]})
+var box= geojson.box(
+  { type: 'Feature',
+    bbox: [-180.0, -90.0, 180.0, 90.0],
+    geometry: {
+      type: 'Polygon',
+      coordinates: [[
+        [-180.0, 10.0], [20.0, 90.0], [180.0, -5.0], [-30.0, -90.0]
+      ]]
+  }})
+var circle = geojson.circle(1, {type: 'Point', coordinates: [100.0,0.0]});
+var polygon = geojson.polygon([
+  {type: 'Point', coordinates: [100.0,0.0]},
+  {type: 'Point', coordinates: [101.0,0.0]},
+  {type: 'Point', coordinates: [101.0,1.0]},
+  {type: 'Point', coordinates: [100.0,1.0]},
+  {type: 'Point', coordinates: [100.0,0.0]}
+])
+var complexpolygon=geojson.complexPolygon(
+  { type: 'Polygon', 
+    coordinates: [
+      [[100.0,0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+      [[100.2,0.2], [100.8, 0.2], [100.8, 1.8], [100.2, 1.8], [100.2, 0.2]]
+  ]})
+var result = {"point": point ,"multiPoint": multiPoint ,"linestring": linestring ,"multiLinestring": multiLinestring ,"box": box,"circle": circle ,
+              "polygon":polygon,"complexpolygon": complexpolygon }
+result
+
+/* //Solutions
+{
+"point":"0,100", 
+"multiPoint":["0,100", "1,101"], 
+"linestring":"LINESTRING(100 0,101 1)", 
+"multiLinestring":["LINESTRING(100 0,101 1)", 
+"LINESTRING(102 2,103 3)"], 
+"box":"[-90, -180, 90, 180]", 
+"circle":"@1 0,100", "polygon":"0,100 0,101 1,101 1,100 0,100", 
+"complexpolygon":"POLYGON((100 0,101 0,101 1,100 1,100 0), (100.2 0.2,100.8 0.2,100.8 1.8,100.2 1.8,100.2 0.2))"
+}
+*/</query><query name="12-geojson-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*//12-GML Functions
+geojson.toGeojson($cts:region) ==&gt; returns Geojson region  
+geojson.parseGeojson( GeoJson region elements) ==&gt; returns cts:region
+geojson.interiorPolygon( GeoJson region) ==&gt; returns cts:region
+*/
+ 
+var geojson = require("/MarkLogic/geospatial/geojson");
+var a = geojson.toGeojson(cts.point(40, -73))
+var b = geojson.toGeojson(cts.linestring ([cts.point(37.5, -122.5), cts.point(37, -122.5), cts.point(36.5,-122.5)] ))
+var c = geojson.toGeojson(
+  cts.polygon([
+    cts.point(5.0,1.0), cts.point(8.0,1.0),
+    cts.point(8.0,6.0), cts.point(5.0,7.0)
+  ]))
+var d= geojson.toGeojson(cts.complexPolygon(
+  cts.polygon("0,0 10,0 10,10 0,10 0,0"),
+  cts.polygon("5,0 7,0 7,5 5,5 5,0")))
+var e = geojson.parseGeojson(
+  { type: 'Polygon', 
+    coordinates: [
+      [[1.0, 5.0], [1.0, 8.0], [6.0, 8.0], [7.0, 5.0], [1.0, 5.0]]
+  ]})
+var f = geojson.interiorPolygon(
+  { type: 'Polygon', 
+    coordinates: [
+      [[100.0,0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+      [[100.2,0.2], [100.8, 0.2], [100.8, 1.8], [100.2, 1.8], [100.2, 0.2]]
+  ]})
+var result = {"point":a,"linesting":b,"polygon":c,"complexpolygon":d,"parseGeojson":e,"interiorPolygon":f}
+result
+  
+/* Solutions
+{
+"point":{"type":"Point", "coordinates":[-73, 40]}, 
+"linesting":{"type":"LineString", 
+"coordinates":[[-122.5, 37.5], [-122.5, 37], [-122.5, 36.5]]}, 
+"polygon":{"type":"Polygon", "coordinates":[[[1, 5], [1, 8], [6, 8], [7, 5], [1, 5]]]}, 
+"complexpolygon":{"type":"Polygon", 
+"coordinates":[[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]], [[0, 5], [0, 7], [5, 7], [5, 5], [0, 5]]]}, 
+"parseGeojson":"POLYGON((1 5,1 8,6 8,7 5,1 5))", 
+"interiorPolygon":"0.2,100.2 0.2,100.8 1.8,100.8 1.8,100.2 0.2,100.2"
+}
+*/</query><query name="13-geojson-geo-query" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*//13-GeoJson query function
+geojson.geospatialQuery( region) ==&gt; returns cts.query
+*/
+
+var geojson = require("/MarkLogic/geospatial/geojson");
+declareUpdate();
+
+xdmp.documentInsert("first2.json",
+    {"type":"Feature", 
+     "geometry":{"type":"Point", "coordinates":[125.6, 8.1]}, 
+     "properties":{"name":"Test"}})
+
+cts.search(geojson.geospatialQuery(cts.box(1, 120, 35, 131)))
+
+/* Solution
+{"type":"Feature", "geometry":{"type":"Point", "coordinates":[125.6, 8.1]}, "properties":{"name":"Test"}}
+*/</query><query name="14-geojson-geo-elequery" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*//14-geojson query from nodes function
+geojson.geospatialQueryFromNodes(region) ==&gt; returns cts.query
+*/
+
+var geojson = require("/MarkLogic/geospatial/geojson");
+declareUpdate();
+
+xdmp.documentInsert("first.json",
+    {"type":"Feature", 
+     "geometry":{"type":"Point", "coordinates":[125.6, 8.1]}, 
+     "properties":{"name":"Test"}})
+
+cts.search(
+geojson.geospatialQueryFromNodes({
+    type: 'Polygon',
+    coordinates: [
+      [
+        [35, 1], [131, 1], [131, 120], 
+        [35, 120], [35, 1] 
+      ]]}))
+      
+/*//Solution
+{"type":"Feature", "geometry":{"type":"Point", "coordinates":[125.6, 8.1]}, "properties":{"name":"Test"}}
+*/</query><query name="15-geoRSS-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //15-GeoRSS functions
+georss.point(point)	==&gt; Create a cts.point value from a GeoRSS point element.
+georss.linestring(line)	==&gt; Create a cts.linestring value from a GeoRSS line element.
+georss.circle(circle)	==&gt; Create a cts.circle value from a radius and GeoRSS point element.
+georss.polygon(polygon)	==&gt; Create a cts.polygon value from a sequence of GeoRSS point elements or a GeoRSS polygon element.
+georss.complexPolygon(complexpolygon)	==&gt; Create a cts.complex-polygon value from a GeoRSS "Polygon" element.
+georss.georss.parseGeorss(georss-region)	==&gt; Construct zero or more cts.region values from GeoRSS XML elements.
+georss.georss.toGeorss(cts-region)	==&gt; Convert cts.region values to GeoRSS XML elements.
+georss.georss.geospatialQuery(region)	==&gt; Returns a cts.query matching points within given regions.
+*/
+declareUpdate();
+var georss = require('/MarkLogic/geospatial/georss.xqy');
+
+var pointNode = xdmp.unquote('&lt;georss:point xmlns:georss="http://www.georss.org/georss"&gt;12.5 -127.24&lt;/georss:point&gt;').next().value.root
+var lineNode = xdmp.unquote('&lt;georss:line xmlns:georss="http://www.georss.org/georss"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/georss:line&gt;').next().value.root
+var circleNode = xdmp.unquote('&lt;georss:point xmlns:georss="http://www.georss.org/georss"&gt;12.5 -127.24&lt;/georss:point&gt;').next().value.root
+var polyNode =   xdmp.unquote('&lt;georss:polygon xmlns:georss="http://www.georss.org/georss"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45&lt;/georss:polygon&gt;').next().value.root
+var comppolyNode =  xdmp.unquote('&lt;georss:polygon xmlns:georss="http://www.georss.org/georss"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45&lt;/georss:polygon&gt;').next().value.root
+
+var mlPoint = georss.point(pointNode)
+var mlLine = georss.linestring(lineNode)
+var mlCircle = georss.circle(47,circleNode)
+var mlPolygon = georss.polygon(polyNode)
+var mlComplexPolygon = georss.complexPolygon(comppolyNode)
+
+var parsePoint = georss.parseGeorss(pointNode)
+var parseLine = georss.parseGeorss(lineNode)
+var parsePolygon = georss.parseGeorss(polyNode)
+var parseComplexPolygon = georss.parseGeorss(comppolyNode)
+
+var toPoint = georss.toGeorss(cts.point("12.5,-127.24"))
+var toLine = georss.toGeorss(cts.linestring("LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)"))
+var toLine1 = georss.toGeorss(cts.linestring([cts.point("12.5,-127.24"),cts.point("12.75,-128.24")]))
+var toPoly = georss.toGeorss(cts.polygon([cts.point(5.0,1.0),cts.point(8.0,1.0),cts.point(8.0,6.0),cts.point(5.0,7.0)]))
+ 
+var doc = "&lt;root xmlns:georss='http://www.georss.org/georss'&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt; &lt;/root&gt;"
+var insert =  xdmp.documentInsert("/points.xml",xdmp.unquote(doc));
+var docContents = fn.doc("/points.xml") 
+var queryRes = cts.search(georss.geospatialQuery(cts.box(10.0, 35.0, 20.0, 40.0)))
+
+var result  = {"pointNode":pointNode,"lineNode":lineNode,"circleNode":circleNode,"polyNode":polyNode,"comppolyNode":comppolyNode,
+                "mlPoint":mlPoint,"mlLine":mlLine,"mlCircle":mlCircle,"mlPolygon":mlPolygon,"mlComplexPolygon":mlComplexPolygon,
+                "parsePoint":parsePoint,"parseLine":parseLine,"parsePolygon":parsePolygon,"parseComplexPolygon":parseComplexPolygon,
+                "toPoint":toPoint,"toLine":toLine,"toLine1":toLine1,"toPoly":toPoly,
+                "doc":doc,"insert":insert,"docContents":docContents,"queryRes":queryRes}
+
+result
+
+/* //Solution
+Object 
+{
+"pointNode": "&lt;georss:point xmlns:georss=\"http://www.georss.org/georss\"&gt;12.5 -127.24&lt;/georss:point&gt;", 
+"lineNode": "&lt;georss:line xmlns:georss=\"http://www.georss.org/georss\"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/georss:line&gt;", 
+"circleNode": "&lt;georss:point xmlns:georss=\"http://www.georss.org/georss\"&gt;12.5 -127.24&lt;/georss:point&gt;", 
+"polyNode": "&lt;georss:polygon xmlns:georss=\"http://www.georss.org/georss\"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45&lt;/georss:polygon&gt;", 
+"comppolyNode": "&lt;georss:polygon xmlns:georss=\"http://www.georss.org/georss\"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45&lt;/georss:polygon&gt;", 
+"mlPoint": "12.5,-127.24", 
+"mlLine": "LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)", 
+"mlCircle": "@47 12.5,-127.24", 
+"mlPolygon": "45.256,-110.45 46.46,-109.48 43.84,-109.86 45.256,-110.45", 
+"mlComplexPolygon": "POLYGON((-110.45 45.256,-109.48 46.46,-109.86 43.84,-110.45 45.256))", 
+"parsePoint": "12.5,-127.24", 
+"parseLine": "LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)", 
+"parseCircle": "@47 12.5,-127.24", 
+"parsePolygon": "45.256,-110.45 46.46,-109.48 43.84,-109.86 45.256,-110.45", 
+"parseComplexPolygon": "POLYGON((-110.45 45.256,-109.48 46.46,-109.86 43.84,-110.45 45.256))", 
+"toPoint": "&lt;georss:point xmlns:georss=\"http://www.georss.org/georss\"&gt;12.5 -127.24&lt;/georss:point&gt;", 
+"toLine": "&lt;georss:line xmlns:georss=\"http://www.georss.org/georss\"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/georss:line&gt;", 
+"toLine1": "&lt;georss:line xmlns:georss=\"http://www.georss.org/georss\"&gt;12.5 -127.24 12.75 -128.24&lt;/georss:line&gt;", 
+"toPoly": "&lt;georss:polygon xmlns:georss=\"http://www.georss.org/georss\"&gt;5 1 8 1 8 6 5 7 5 1&lt;/georss:polygon&gt;", 
+"doc": "&lt;root xmlns:georss='http://www.georss.org/georss'&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt; &lt;/root&gt;", 
+"insert": null, 
+"docContents": "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;root xmlns:georss=\"http://www.georss.org/georss\"&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt;&lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt; &lt;/root&gt;", 
+"queryRes": null
+}
+*/
+ </query><query name="16-mcgm-functions" focus="true" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //16-mcgm Functions
+mcgm.point	Create a cts.point value from a MCGM Dot element.
+mcgm.circle	Create a cts.circle value from a radius and MCGM Dot element
+mcgm.polygon	Construct a cts.polygon value from a sequence of MCGM Dot elements.
+mcgm.geospatialQuery	Returns a cts.query matching points within given regions.
+mcgm.geospatialQueryFromElements	Returns a cts.query matching points within given regions.
+*/
+
+var mcgm = require("/MarkLogic/geospatial/mcgm");
+declareUpdate();
+
+var pointNode = xdmp.unquote('&lt;Dot Latitude="12.5" Longitude="-127.24"/&gt;').next().value.root
+var mlPoint = mcgm.point(pointNode)
+
+var doc = '&lt;root xmlns:mcgm="http://marklogic.com/geospatial/mcgm"&gt;&lt;item&gt;&lt;Dot Latitude="10.5" Longitude="30.0"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude="15.35" Longitude="35.34"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude="5.11" Longitude="40.55"/&gt;&lt;/item&gt;&lt;/root&gt;'
+var insert =  xdmp.documentInsert("/firstm.xml",xdmp.unquote(doc));
+var docContents = fn.doc("/firstm.xml")
+var result3 = {"doc":doc,"insert":insert,"docContents":docContents}
+
+var searchRes1 = cts.search(mcgm.geospatialQuery(cts.box(10.0, 35.0, 20.0, 40.0)))
+var searchRes2 = cts.search(mcgm.geospatialQuery(cts.box(10.0, 40.0, 20.0, 35.0)))
+var searchRes3 = cts.search(mcgm.geospatialQuery(cts.box(10.0, 35.0, 20.0, 40.0)))
+var result4 = {"searchRes1":searchRes1,"searchRes2":searchRes2,"searchRes3":searchRes3}
+
+var result = {"pointNode":pointNode,"mlPoint":mlPoint,
+              "doc":doc,"insert":insert,"docContents":docContents,
+              "searchRes1":searchRes1,"searchRes2":searchRes2,"searchRes3":searchRes3}
+result
+  
+/* // Solutions
+Object 
+{
+"pointNode": "&lt;Dot Latitude=\"12.5\" Longitude=\"-127.24\"/&gt;", 
+"mlPoint": "12.5,-127.24", 
+
+"doc": "&lt;root xmlns:mcgm=\"http://marklogic.com/geospatial/mcgm\"&gt;&lt;item&gt;&lt;Dot Latitude=\"10.5\" Longitude=\"30.0\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"15.35\" Longitude=\"35.34\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"5.11\" Longitude=\"40.55\"/&gt;&lt;/item&gt;&lt;/root&gt;", 
+"insert": null, 
+"docContents": "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;root xmlns:mcgm=\"http://marklogic.com/geospatial/mcgm\"&gt;&lt;item&gt;&lt;Dot Latitude=\"10.5\" Longitude=\"30.0\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"15.35\" Longitude=\"35.34\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"5.11\" Longitude=\"40.55\"/&gt;&lt;/item&gt;&lt;/root&gt;", 
+
+"searchRes1": "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;root xmlns:mcgm=\"http://marklogic.com/geospatial/mcgm\"&gt;&lt;item&gt;&lt;Dot Latitude=\"10.5\" Longitude=\"30.0\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"15.35\" Longitude=\"35.34\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"5.11\" Longitude=\"40.55\"/&gt;&lt;/item&gt;&lt;/root&gt;", 
+"searchRes2": "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;root xmlns:mcgm=\"http://marklogic.com/geospatial/mcgm\"&gt;&lt;item&gt;&lt;Dot Latitude=\"10.5\" Longitude=\"30.0\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"15.35\" Longitude=\"35.34\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"5.11\" Longitude=\"40.55\"/&gt;&lt;/item&gt;&lt;/root&gt;", 
+"searchRes3": "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;root xmlns:mcgm=\"http://marklogic.com/geospatial/mcgm\"&gt;&lt;item&gt;&lt;Dot Latitude=\"10.5\" Longitude=\"30.0\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"15.35\" Longitude=\"35.34\"/&gt;&lt;/item&gt;&lt;item&gt;&lt;Dot Latitude=\"5.11\" Longitude=\"40.55\"/&gt;&lt;/item&gt;&lt;/root&gt;"
+}
+*/
+</query></workspace></export>
