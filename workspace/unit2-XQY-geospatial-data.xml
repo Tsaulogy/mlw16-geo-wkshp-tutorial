@@ -1,0 +1,740 @@
+<export><workspace name="unit2-XQY-geospatial-data"><query name="1-kml-constructors" focus="true" active="true" content-source="as:17543607842490988103:" mode="xquery">(://1-KML Constructors:
+geokml:point($point) ==&gt; returns cts:point
+geokml:linestring($linestring) ==&gt; returns cts:linestring
+geokml:circle($radius, $point) ==&gt; returns cts:circle
+geokml:box($box) ==&gt; returns cts:box
+geokml:polygon($polygon) ==&gt; returns cts:polygon
+geokml:complex-polygon($outer,$inner) ==&gt; returns cts:complex-polygon
+:)
+
+xquery version "1.0-ml";
+import module namespace geokml = "http://marklogic.com/geospatial/kml" at "/MarkLogic/geospatial/kml.xqy";
+declare namespace kml="http://www.opengis.net/kml/2.2";
+
+geokml:point( &lt;kml:Point&gt;
+               &lt;kml:coordinates&gt;-127.24,12.5,10.0&lt;/kml:coordinates&gt;
+              &lt;/kml:Point&gt;),
+geokml:point( &lt;kml:Location&gt;
+                &lt;kml:latitude&gt;12.5&lt;/kml:latitude&gt;
+                &lt;kml:longitude&gt;-127.24&lt;/kml:longitude&gt;
+                &lt;kml:altitude&gt;10.0&lt;/kml:altitude&gt;
+              &lt;/kml:Location&gt;),
+geokml:linestring( &lt;kml:LineString id="ID"&gt;
+                     &lt;kml:coordinates&gt;-110.45,45.256   -109.48,46.46  -109.86,43.84&lt;/kml:coordinates&gt;
+                   &lt;/kml:LineString&gt;),
+geokml:circle(47, &lt;kml:Point&gt;
+		                &lt;kml:coordinates&gt;-127.24,12.5&lt;/kml:coordinates&gt;
+                	&lt;/kml:Point&gt;),
+geokml:box( &lt;kml:LatLongBox&gt;
+             &lt;kml:north&gt;30&lt;/kml:north&gt;
+             &lt;kml:south&gt;12.5&lt;/kml:south&gt;
+             &lt;kml:east&gt;-122.24&lt;/kml:east&gt;
+             &lt;kml:west&gt;-127.24&lt;/kml:west&gt;
+            &lt;/kml:LatLongBox&gt;),
+geokml:polygon( &lt;kml:Polygon&gt;
+                 &lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;
+                 &lt;kml:coordinates&gt;-127.24,12.5 -127.8,15.25 -126.1,13.45 -127.24,12.5&lt;/kml:coordinates&gt;
+                 &lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;
+                &lt;/kml:Polygon&gt; ),
+xdmp:describe(geokml:complex-polygon(&lt;kml:Polygon&gt;
+                           &lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;
+                             &lt;kml:coordinates&gt;-127.24,12.5 -127.8,15.25 -126.1,13.45 -127.24,12.5&lt;/kml:coordinates&gt;
+                           &lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;
+                           &lt;kml:innerBoundaryIs&gt;&lt;kml:LinearRing&gt;
+                             &lt;kml:coordinates&gt;-127,13 127,-14 126,-14 127,-13&lt;/kml:coordinates&gt;
+                           &lt;/kml:LinearRing&gt;&lt;/kml:innerBoundaryIs&gt;
+                        &lt;/kml:Polygon&gt;),(),())
+               
+(: //Solution 
+cts:long-lat-point("12.5,-127.24")
+cts:point("12.5,-127.24")
+cts:linestring("LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)")
+cts:circle("@47 12.5,-127.24")
+cts:box("[12.5, -127.24, 30, -122.24]")
+cts:polygon("12.5,-127.24 15.25,-127.8 13.45,-126.1 12.5,-127.24")
+cts:complex-polygon("POLYGON((-127.24 12.5,-127.8 15.25,-126.1 13.45,-127.24 12.5), (-127 13,127 -14,126 -14,127 -13,-127 13))")
+:)</query><query name="2-kml-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://2-KML Functions
+geokml.toKml($cts:region) ==&gt; returns KML region //Circle not supported
+geokml.parseKml( KML region elements) ==&gt; returns cts:region
+geokml.interiorPolygon( KML region) ==&gt; returns cts:region
+:)
+
+import module namespace geokml="http://marklogic.com/geospatial/kml" at "/MarkLogic/geospatial/kml.xqy";
+declare namespace kml="http://www.opengis.net/kml/2.2";
+
+geokml:to-kml(cts:point(40, -73)),
+geokml:to-kml(cts:linestring( (cts:point(37.5, -12.5), cts:point(37, -122.5), cts:point(36.5,-122.5)))),
+geokml:to-kml(cts:box(45, -122, 78, 30)),
+geokml:to-kml(cts:polygon((cts:point(5.0,1.0),cts:point(8.0,1.0),cts:point(8.0,6.0),cts:point(5.0,7.0)))),
+geokml:parse-kml(&lt;Polygon xmlns="http://www.opengis.net/kml/2.2"&gt;
+                   &lt;extrude&gt;0&lt;/extrude&gt;
+                   &lt;tessellate&gt;0&lt;/tessellate&gt;
+                   &lt;altitudeMode&gt;relativeToGround&lt;/altitudeMode&gt;
+                   &lt;outerBoundaryIs&gt;&lt;LinearRing&gt;
+                    &lt;coordinates&gt;1.0,5.0 1.0,8.0 6.0,8.0 7.0,5.0 1.0,5.0 &lt;/coordinates&gt;
+                   &lt;/LinearRing&gt;&lt;/outerBoundaryIs&gt;
+                &lt;/Polygon&gt;),
+geokml:interior-polygon(&lt;kml:Polygon&gt;
+                          &lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;
+                             &lt;kml:coordinates&gt;-127.24,12.5 -127.8,15.25 -126.1,13.45 -127.24,12.5&lt;/kml:coordinates&gt;
+                          &lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;
+                          &lt;kml:innerBoundaryIs&gt;&lt;kml:LinearRing&gt;
+                             &lt;kml:coordinates&gt;-127,13 127,-14 126,-14 127,-13&lt;/kml:coordinates&gt;
+                          &lt;/kml:LinearRing&gt;&lt;/kml:innerBoundaryIs&gt;
+                        &lt;/kml:Polygon&gt;)
+                 
+(://Solution
+&lt;kml:Point xmlns:kml="http://www.opengis.net/kml/2.2"&gt;&lt;kml:coordinates&gt;-73,40&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;
+&lt;kml:LineString xmlns:kml="http://www.opengis.net/kml/2.2"&gt;&lt;kml:coordinates&gt;-12.5,37.5 -122.5,37 -122.5,36.5&lt;/kml:coordinates&gt;&lt;/kml:LineString&gt;
+&lt;kml:LatLongBox xmlns:kml="http://www.opengis.net/kml/2.2"&gt;&lt;kml:south&gt;45&lt;/kml:south&gt;&lt;kml:west&gt;-122&lt;/kml:west&gt;&lt;kml:north&gt;78&lt;/kml:north&gt;&lt;kml:east&gt;30&lt;/kml:east&gt;&lt;/kml:LatLongBox&gt;
+&lt;kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2"&gt;&lt;kml:outerBoundaryIs&gt;&lt;kml:LinearRing&gt;&lt;kml:coordinates&gt;1,5 1,8 6,8 7,5 1,5&lt;/kml:coordinates&gt;&lt;/kml:LinearRing&gt;&lt;/kml:outerBoundaryIs&gt;&lt;/kml:Polygon&gt;
+cts:complex-polygon("POLYGON((1 5,1 8,6 8,7 5,1 5))")
+cts:polygon("13,-127 -14,127 -14,126 -13,127 13,-127")
+:)</query><query name="3-kml-geo-query" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://3-KML query function
+geokml:geospatial-query($region) ==&gt; returns cts:query
+Run this twice. first time the document is inserted.
+Second run the query returns results.
+:)
+
+xquery version "1.0-ml";
+import module namespace geokml = "http://marklogic.com/geospatial/kml" at "/MarkLogic/geospatial/kml.xqy";
+declare namespace kml="http://www.opengis.net/kml/2.2";
+
+(: create a document with 3 data points :)
+xdmp:document-insert("/points.xml",
+                      &lt;root xmlns:kml="http://www.opengis.net/kml/2.2"&gt;
+                           &lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;30.0,10.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+                           &lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;35.34,15.35&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+                           &lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;40.55,5.11&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+                      &lt;/root&gt; ),
+(: Return point elements in document which are inside this box :)
+cts:search(doc("/points.xml")//item, 
+  geokml:geospatial-query(geokml:box(&lt;kml:LatLongBox&gt;
+                                         &lt;kml:north&gt;20.0&lt;/kml:north&gt;
+                                         &lt;kml:south&gt;10.0&lt;/kml:south&gt;
+                                         &lt;kml:east&gt;40.0&lt;/kml:east&gt;
+                                         &lt;kml:west&gt;35.0&lt;/kml:west&gt;
+                                     &lt;/kml:LatLongBox&gt;))),
+cts:search(doc("/points.xml")//item, 
+  geokml:geospatial-query(geokml:box(&lt;kml:LatLongBox&gt;
+                                         &lt;kml:north&gt;20.0&lt;/kml:north&gt;
+                                         &lt;kml:south&gt;10.0&lt;/kml:south&gt;
+                                         &lt;kml:east&gt;35.0&lt;/kml:east&gt;
+                                         &lt;kml:west&gt;40.0&lt;/kml:west&gt;
+                                     &lt;/kml:LatLongBox&gt;)))
+   
+(: Solution
+&lt;item xmlns:kml="http://www.opengis.net/kml/2.2"&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;35.34,15.35&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+&lt;item xmlns:kml="http://www.opengis.net/kml/2.2"&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;30.0,10.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+:)
+ </query><query name="4-kml-geo-elequery" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://4-KML query from elements function
+geokml:geospatial-query-from-elements($region) ==&gt; returns cts:query
+:)
+
+xquery version "1.0-ml";
+import module namespace geokml = "http://marklogic.com/geospatial/kml" at "/MarkLogic/geospatial/kml.xqy";
+declare namespace kml="http://www.opengis.net/kml/2.2";
+
+(: create a document with 3 data points:)
+xdmp:document-insert("/points.xml",
+                      &lt;root xmlns:kml="http://www.opengis.net/kml/2.2"&gt;
+                         &lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;30.0,10.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+                         &lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;35.34,15.35&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+                         &lt;item&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;40.55,5.11&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+                      &lt;/root&gt;),
+(: Return point elements in document which are inside this box :)
+cts:search(doc("/points.xml")//item, 
+  geokml:geospatial-query-from-elements(&lt;kml:LatLongBox&gt;
+                                            &lt;kml:north&gt;20.0&lt;/kml:north&gt;
+                                            &lt;kml:south&gt;10.0&lt;/kml:south&gt;
+                                            &lt;kml:east&gt;40.0&lt;/kml:east&gt;
+                                            &lt;kml:west&gt;35.0&lt;/kml:west&gt;
+                                        &lt;/kml:LatLongBox&gt;)),
+cts:search(doc("/points.xml")//item, 
+  geokml:geospatial-query-from-elements(&lt;kml:LatLongBox&gt;
+                                            &lt;kml:north&gt;20.0&lt;/kml:north&gt;
+                                            &lt;kml:south&gt;10.0&lt;/kml:south&gt;
+                                            &lt;kml:east&gt;35.0&lt;/kml:east&gt;
+                                            &lt;kml:west&gt;40.0&lt;/kml:west&gt;
+                                        &lt;/kml:LatLongBox&gt;))
+
+(://Solution
+&lt;item xmlns:kml="http://www.opengis.net/kml/2.2"&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;35.34,15.35&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+&lt;item xmlns:kml="http://www.opengis.net/kml/2.2"&gt;&lt;kml:Point&gt;&lt;kml:coordinates&gt;30.0,10.5&lt;/kml:coordinates&gt;&lt;/kml:Point&gt;&lt;/item&gt;
+:)</query><query name="5-wkt-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: //5-WKT functions
+geo:validate-wkt($wkt) ==&gt; returns true if $wkt is a valid Marklogic region
+geo:parse-wkt($wkt) ==&gt; returns cts:region
+geo:to-wkt(cts:region) ==&gt; returns the wkt region
+Circle and box not supported
+:)
+
+xquery version "1.0-ml";
+let $is-wkt := geo:validate-wkt("LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)")
+
+let $line := &lt;linestring&gt;LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)&lt;/linestring&gt;
+let $parse-wkt := geo:parse-wkt(fn:data($line))
+
+let $to-wkt-point := geo:to-wkt(cts:point(36, 71))
+let $to-wkt-line := geo:to-wkt(cts:linestring( (cts:point(37.5, -122), cts:point(37, -122), cts:point(36.5,-122) )))
+
+let $point1 :=  cts:point( 10,-12 )
+let $point2 :=  cts:point(32,42 )
+let $point3 :=   cts:point(67,90 )
+let $polygon :=cts:polygon(($point1 ,$point2 ,$point3 ))
+let $to-wkt-polygon := geo:to-wkt($polygon)
+
+let $polygon1 := cts:polygon((cts:point(1.5,0),cts:point(2.5,1),cts:point(1.5,2),cts:point(0.5,2),cts:point(0.5,0),cts:point(1.5,0)))
+let $polygon2 := cts:polygon((cts:point(2.0,2.0),cts:point(2.0,4.0),cts:point(8.0,4.0),cts:point(12.0,4.0),cts:point(12.0,10.0),cts:point(8.0,10.0),cts:point(5.0,14.0)))
+let $complex-polygon := cts:complex-polygon($polygon1, $polygon2) 
+let $to-wkt-complex-polygon := geo:to-wkt($complex-polygon)
+
+return
+(&lt;is-wkt&gt;{$is-wkt}&lt;/is-wkt&gt;,
+&lt;parse-wkt&gt;{$parse-wkt}&lt;/parse-wkt&gt;,
+&lt;to-wkt-point&gt;{$to-wkt-point}&lt;/to-wkt-point&gt;,
+&lt;to-wkt-line&gt;{$to-wkt-line}&lt;/to-wkt-line&gt;,
+&lt;to-wkt-polygon&gt;{$to-wkt-polygon}&lt;/to-wkt-polygon&gt;,
+&lt;to-wkt-complex-polygon&gt;{$to-wkt-complex-polygon}&lt;/to-wkt-complex-polygon&gt;)
+
+(://Solution
+&lt;is-wkt&gt;true&lt;/is-wkt&gt;
+&lt;parse-wkt&gt;LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)&lt;/parse-wkt&gt;
+&lt;to-wkt-point&gt;POINT(71 36)&lt;/to-wkt-point&gt;
+&lt;to-wkt-line&gt;LINESTRING(-122 37.5,-122 37,-122 36.5)&lt;/to-wkt-line&gt;
+&lt;to-wkt-polygon&gt;POLYGON((-12 10,42 32,90 67,-12 10))&lt;/to-wkt-polygon&gt;
+&lt;to-wkt-complex-polygon&gt;POLYGON((0 1.5,1 2.5,2 1.5,2 0.5,0 0.5,0 1.5), (2 2,4 2,4 8,4 12,10 12,10 8,14 5,2 2))&lt;/to-wkt-complex-polygon&gt;
+:)</query><query name="6-wkb-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: //6-WKB functions
+geo:validate-wkb($wkb) ==&gt; returns true if $wkb is a valid Marklogic region
+geo:parse-wkb($wkb) ==&gt; returns cts:region
+geo:to-wkb(cts:region) ==&gt; returns the wkb region
+Circle and box not supported
+:)
+
+xquery version "1.0-ml";
+let $is-wkb := geo:validate-wkb(binary{"50000000020000000340478ccccccccccdc05c10000000000040478ccccccccccdc05c133333333334404799999999999ac05c19999999999a"})
+let $parse-wkb := geo:parse-wkb(binary{"00000000020000000340478ccccccccccdc05c10000000000040478ccccccccccdc05c133333333334404799999999999ac05c19999999999a"})
+
+let $to-wkb-point := xdmp:describe(geo:to-wkb(cts:point(36, 71)))
+let $to-wkb-line := xdmp:describe(geo:to-wkb(cts:linestring( (cts:point(37.5, -122), cts:point(37, -122), cts:point(36.5,-122) ))))
+
+let $point1 :=  cts:point( 10,-12 )
+let $point2 :=  cts:point(32,42 )
+let $point3 :=   cts:point(67,90 )
+let $polygon := cts:polygon(($point1 ,$point2 ,$point3 ))
+let $to-wkb-polygon := xdmp:describe(geo:to-wkb($polygon))
+
+let $polygon1 := cts:polygon((cts:point(1.5,0),cts:point(2.5,1),cts:point(1.5,2),cts:point(0.5,2),cts:point(0.5,0),cts:point(1.5,0)))
+let $polygon2 := cts:polygon((cts:point(2.0,2.0),cts:point(2.0,4.0),cts:point(8.0,4.0),cts:point(12.0,4.0),cts:point(12.0,10.0),cts:point(8.0,10.0),cts:point(5.0,14.0)))
+let $complex-polygon := cts:complex-polygon($polygon1, $polygon2) 
+let $to-wkb-complex-polygon := xdmp:describe(geo:to-wkb($complex-polygon))
+
+return
+(&lt;is-wkb&gt;{$is-wkb}&lt;/is-wkb&gt;,
+&lt;parse-wkb&gt;{$parse-wkb}&lt;/parse-wkb&gt;,
+&lt;to-wkb-point&gt;{$to-wkb-point}&lt;/to-wkb-point&gt;,
+&lt;to-wkb-line&gt;{$to-wkb-line}&lt;/to-wkb-line&gt;,
+&lt;to-wkb-polygon&gt;{$to-wkb-polygon}&lt;/to-wkb-polygon&gt;,
+&lt;to-wkb-complex-polygon&gt;{$to-wkb-complex-polygon}&lt;/to-wkb-complex-polygon&gt;)
+
+(://Solution
+&lt;is-wkb&gt;false&lt;/is-wkb&gt;
+&lt;parse-wkb&gt;LINESTRING(-112.25 47.1,-112.3 47.1,-112.4 47.2)&lt;/parse-wkb&gt;
+&lt;to-wkb-point&gt;binary{"000000000140420000000000004051c00000000000"}&lt;/to-wkb-point&gt;
+&lt;to-wkb-line&gt;binary{"0000000002000000034042c00000000000c05e8000000000004042800000000000c05e8000000000004042400000000000c05e800000000000"}&lt;/to-wkb-line&gt;
+&lt;to-wkb-polygon&gt;binary{"000000000300000001000000044024000000000000c028000000000000404000000000000040450000000000004050c000000000004056800000000000402400..."}&lt;/to-wkb-polygon&gt;
+&lt;to-wkb-complex-polygon&gt;binary{"000000000300000002000000063ff8000000000000000000000000000040040000000000003ff00000000000003ff800000000000040000000000000003fe000..."}&lt;/to-wkb-complex-polygon&gt;
+:)</query><query name="7-gml-constructors" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">
+(: //7-GML Constructors
+geogml:point($point) ==&gt; returns cts:point
+geogml:linestring($linestring) ==&gt; returns cts:linestring
+geogml:box($box) ==&gt; returns cts:box
+geogml:circle($circle) ==&gt; returns cts:circle
+geogml:polygon($polygon) ==&gt; returns cts:polygon
+geogml:complex-polygon($complex-polygon) ==&gt; returns cts:complex-polygon
+:)
+
+xquery version "1.0-ml";
+import module namespace geogml = "http://marklogic.com/geospatial/gml" at "/MarkLogic/geospatial/gml.xqy";
+declare namespace gml="http://www.opengis.net/gml/3.2";
+
+geogml:point(
+  &lt;gml:Point&gt;
+    &lt;gml:pos&gt;12.5 -127.24&lt;/gml:pos&gt;
+  &lt;/gml:Point&gt;),
+geogml:linestring(
+    &lt;gml:LineString&gt;
+      &lt;gml:posList srsDimension="2"&gt;45.67 88.56 55.56 89.44&lt;/gml:posList&gt;
+    &lt;/gml:LineString&gt;),
+geogml:circle(47, 
+  &lt;gml:Point&gt;
+    &lt;gml:pos&gt;12.5 -127.24&lt;/gml:pos&gt;
+  &lt;/gml:Point&gt;),
+geogml:box(
+     &lt;gml:Envelope&gt;
+       &lt;gml:lowerCorner&gt;12.5 -127.24&lt;/gml:lowerCorner&gt;
+       &lt;gml:upperCorner&gt;30 -122.24&lt;/gml:upperCorner&gt;
+     &lt;/gml:Envelope&gt;),
+ geogml:polygon((
+    &lt;gml:Point&gt;
+      &lt;gml:pos&gt;12.5 -127.24&lt;/gml:pos&gt;
+    &lt;/gml:Point&gt;,
+    &lt;gml:Point&gt;
+      &lt;gml:pos&gt;15.25 -127.8&lt;/gml:pos&gt;
+    &lt;/gml:Point&gt;,
+    &lt;gml:Point&gt;
+      &lt;gml:pos&gt;13.45 -126.1&lt;/gml:pos&gt;
+    &lt;/gml:Point&gt;,
+    &lt;gml:Point&gt;
+      &lt;gml:pos&gt;12.5 -127.24&lt;/gml:pos&gt;
+    &lt;/gml:Point&gt;
+  )),
+geogml:polygon(
+    &lt;gml:Polygon&gt;
+      &lt;gml:exterior&gt;&lt;gml:LinearRing&gt;
+        &lt;gml:pos&gt;12.5 -127.24&lt;/gml:pos&gt;
+        &lt;gml:pos&gt;15.25 -127.8&lt;/gml:pos&gt;
+        &lt;gml:pos&gt;13.45 -126.1&lt;/gml:pos&gt;
+        &lt;gml:pos&gt;12.5 -127.24&lt;/gml:pos&gt;
+      &lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;
+    &lt;/gml:Polygon&gt;
+  ),
+xdmp:describe( geogml:complex-polygon(
+    &lt;gml:Polygon&gt;
+      &lt;gml:exterior&gt;
+        &lt;gml:LinearRing&gt;
+          &lt;gml:posList&gt;12.5,-127.24 15.25,-127.8 13.45,-126.1 12.5,-127.24&lt;/gml:posList&gt;
+        &lt;/gml:LinearRing&gt;
+      &lt;/gml:exterior&gt;
+      &lt;gml:interior&gt;
+        &lt;gml:LinearRing&gt;
+          &lt;gml:posList&gt;13,-127 -14,127 -14,126 -13,127&lt;/gml:posList&gt;
+        &lt;/gml:LinearRing&gt;
+      &lt;/gml:interior&gt;
+    &lt;/gml:Polygon&gt;
+  ),(),())
+  
+(: //Solutions
+cts:point("12.5,-127.24")
+cts:linestring("LINESTRING(88.56 45.67,89.44 55.56)")
+cts:circle("@47 12.5,-127.24")
+cts:box("[12.5, -127.24, 30, -122.24]")
+cts:polygon("12.5,-127.24 15.25,-127.8 13.45,-126.1 12.5,-127.24")
+cts:polygon("12.5,-127.24 15.25,-127.8 13.45,-126.1 12.5,-127.24")
+cts:complex-polygon("POLYGON((-127.24 12.5,-127.8 15.25,-126.1 13.45,-127.24 12.5), (-127 13,127 -14,126 -14,127 -13,-127 13))")
+:)
+</query><query name="8-gml-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://8-GML Functions
+geogml:to-gml($cts:region) ==&gt; returns GML region //Circle not supported
+geogml:parse-gml( GML region elements) ==&gt; returns cts:region
+geogml:interior-polygon( GML region) ==&gt; returns cts:region
+:)
+ 
+import module namespace geogml = "http://marklogic.com/geospatial/gml" at "/MarkLogic/geospatial/gml.xqy";
+declare namespace gml="http://www.opengis.net/gml/3.2";
+
+geogml:to-gml(cts:point(40, -73)),
+geogml:to-gml(cts:linestring( (cts:point(37.5, -12.5), cts:point(37, -122.5), cts:point(36.5,-122.5)))),
+geogml:to-gml(cts:box(45, -122, 78, 30)),
+geogml:to-gml(cts:circle(20, cts:point(37.655983, -122.425525))),
+geogml:to-gml(cts:polygon((cts:point(5.0,1.0),cts:point(8.0,1.0),cts:point(8.0,6.0),cts:point(5.0,7.0)))),
+geogml:parse-gml(
+   &lt;gml:Envelope&gt;
+     &lt;gml:lowerCorner&gt;12.5 -127.24&lt;/gml:lowerCorner&gt;
+     &lt;gml:upperCorner&gt;30 -122.24&lt;/gml:upperCorner&gt;
+   &lt;/gml:Envelope&gt;),
+geogml:interior-polygon(
+    &lt;gml:Polygon&gt;
+      &lt;gml:exterior&gt;&lt;gml:LinearRing&gt;
+        &lt;gml:pos&gt;12.5 -127.24&lt;/gml:pos&gt;
+        &lt;gml:pos&gt;15.25 -127.8&lt;/gml:pos&gt;
+        &lt;gml:pos&gt;13.45 -126.1&lt;/gml:pos&gt;
+        &lt;gml:pos&gt;12.5 -127.24&lt;/gml:pos&gt;
+      &lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;
+    &lt;/gml:Polygon&gt;)
+  
+(: Solutions
+&lt;gml:Point gml:id="n2c1d6423471f22c9" srsName="ML:wgs84" srsDimension="2" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:pos&gt;40 -73&lt;/gml:pos&gt;&lt;/gml:Point&gt;
+&lt;gml:LineString gml:id="n53e8aaaa80fc0148" srsName="ML:wgs84" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:posList srsDimension="2"&gt;37.5 -12.5 37 -122.5 36.5 -122.5&lt;/gml:posList&gt;&lt;/gml:LineString&gt;
+&lt;gml:Envelope gml:id="n5d171abd85e31ae7" srsName="ML:wgs84" srsDimension="2" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:lowerCorner&gt;45 -122&lt;/gml:lowerCorner&gt;&lt;gml:upperCorner&gt;78 30&lt;/gml:upperCorner&gt;&lt;/gml:Envelope&gt;
+&lt;gml:Circle gml:id="neb0769a137503609" srsName="ML:wgs84" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:posList srsDimension="2"&gt;37.65598 -122.4255&lt;/gml:posList&gt;&lt;gml:radius uom="[mi_i]"&gt;20&lt;/gml:radius&gt;&lt;/gml:Circle&gt;
+&lt;gml:Polygon gml:id="n6bdd54eaaf6a3c56" srsName="ML:wgs84" xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:exterior&gt;&lt;gml:LinearRing&gt;&lt;gml:posList srsDimension="2"&gt;5 1 8 1 8 6 5 7 5 1&lt;/gml:posList&gt;&lt;/gml:LinearRing&gt;&lt;/gml:exterior&gt;&lt;/gml:Polygon&gt;
+cts:box("[12.5, -127.24, 30, -122.24]")
+ :)</query><query name="9-gml-geo-query" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://9-GML query function
+geogml:geospatial-query($region) ==&gt; returns cts:query
+:)
+
+xquery version "1.0-ml";
+import module namespace geogml = "http://marklogic.com/geospatial/gml"
+   at "/MarkLogic/geospatial/gml.xqy";
+declare namespace gml="http://www.opengis.net/gml/3.2";
+
+(: create a document with 3 data points data :)
+xdmp:document-insert("/points-gml.xml",
+&lt;root xmlns:gml="http://www.opengis.net/gml/3.2"&gt;
+  &lt;item&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;10.5 30.0&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+  &lt;item&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;15.35 35.34&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+  &lt;item&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;5.11 40.55&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+&lt;/root&gt; ),
+cts:search(doc("/points-gml.xml")//item, 
+  geogml:geospatial-query(
+    geogml:box(
+      &lt;gml:Envelope&gt;
+        &lt;gml:lowerCorner&gt;10.0 35.0&lt;/gml:lowerCorner&gt;
+        &lt;gml:upperCorner&gt;20.0 40.0&lt;/gml:upperCorner&gt;
+      &lt;/gml:Envelope&gt;) )),
+cts:search(doc("/points-gml.xml")//item, 
+  geogml:geospatial-query(geogml:box(
+    &lt;gml:Envelope xmlns:gml="http://www.opengis.net/gml/3.2"&gt;
+      &lt;gml:lowerCorner&gt;10.0 40.0&lt;/gml:lowerCorner&gt;
+      &lt;gml:upperCorner&gt;20.0 35.0&lt;/gml:upperCorner&gt;
+    &lt;/gml:Envelope&gt;
+  )))
+   
+(: Solution
+&lt;item xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;15.35 35.34&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+&lt;item xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;10.5 30.0&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+:)</query><query name="10-gml-geo-elequery" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://10-GML query from elements function
+geoGml:geospatial-query-from-elements($region) ==&gt; returns cts:query
+:)
+
+xquery version "1.0-ml";
+import module namespace geogml = "http://marklogic.com/geospatial/gml" at "/MarkLogic/geospatial/gml.xqy";
+declare namespace gml="http://www.opengis.net/gml/3.2";
+
+(: create a document with 3 points data :)
+xdmp:document-insert("/points.xml",
+&lt;root xmlns:gml="http://www.opengis.net/gml/3.2"&gt;
+  &lt;item&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;10.5 30.0&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+  &lt;item&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;15.35 35.34&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+  &lt;item&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;5.11 40.55&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+&lt;/root&gt; ),
+cts:search(doc("/points.xml")//item, 
+  geogml:geospatial-query-from-elements(
+      &lt;gml:Envelope&gt;
+        &lt;gml:lowerCorner&gt;10.0 35.0&lt;/gml:lowerCorner&gt;
+        &lt;gml:upperCorner&gt;20.0 40.0&lt;/gml:upperCorner&gt;
+      &lt;/gml:Envelope&gt;) ),
+cts:search(doc("/points.xml")//item, 
+  geogml:geospatial-query-from-elements(
+    &lt;gml:Envelope xmlns:gml="http://www.opengis.net/gml/3.2"&gt;
+      &lt;gml:lowerCorner&gt;10.0 40.0&lt;/gml:lowerCorner&gt;
+      &lt;gml:upperCorner&gt;20.0 35.0&lt;/gml:upperCorner&gt;
+    &lt;/gml:Envelope&gt;) )
+ 
+(://Solution
+&lt;item xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;15.35 35.34&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+&lt;item xmlns:gml="http://www.opengis.net/gml/3.2"&gt;&lt;gml:Point&gt;&lt;gml:pos&gt;10.5 30.0&lt;/gml:pos&gt;&lt;/gml:Point&gt;&lt;/item&gt;
+:)</query><query name="11-geojson-constructors" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">
+(: //11-geojson Constructors
+geojson:point($point) ==&gt; returns cts:point
+geojson:linestring($linestring) ==&gt; returns cts:linestring
+geojson:box($box) ==&gt; returns cts:box
+geojson:circle($circle) ==&gt; returns cts:circle
+geojson:polygon($polygon) ==&gt; returns cts:polygon
+geojson:complex-polygon($complex-polygon) ==&gt; returns cts:complex-polygon
+:)
+
+xquery version "1.0-ml";
+  import module namespace geojson = "http://marklogic.com/geospatial/geojson"
+         at "/MarkLogic/geospatial/geojson.xqy";
+
+  geojson:point(
+    object-node { "type" : "Point", "coordinates" : array-node {100.00, 0.0} }
+  )
+  ,
+   geojson:multi-point( object-node { 
+    "type" : "MultiPoint", 
+    "coordinates" : array-node { array-node {100.0, 0.0}, 
+                                 array-node {101.0, 1.0} }}
+  )
+ ,
+  geojson:linestring(
+    object-node { 
+      "type": "LineString",
+      "coordinates": array-node { array-node {100.0, 0.0}, array-node {101.0, 1.0} }
+    }
+  ),
+  geojson:multi-linestring(xdmp:unquote('{ "type": "MultiLineString",
+            "coordinates": [
+                [ [100.0, 0.0], [101.0, 1.0] ],
+                [ [102.0, 2.0], [103.0, 3.0] ]
+              ]
+            }'
+        )/object-node()),
+  geojson:box(object-node { 
+    "type": "Feature",
+    "bbox": array-node {-180.0, -90.0, 180.0, 90.0},
+    "geometry": object-node {
+      "type": "Polygon",
+      "coordinates": array-node { array-node {
+        array-node {-180.0, 10.0}, 
+        array-node {20.0, 90.0}, 
+        array-node {180.0, -5.0},
+        array-node {-30.0, -90.0}
+      }}
+    }
+  })
+  ,
+   geojson:circle(1,
+    object-node { "type" : "Point", "coordinates" : array-node {100.00, 0.0} }
+  ),
+   geojson:polygon((
+    object-node { "type" : "Point", "coordinates" : array-node {100.0, 0.0} },
+    object-node { "type" : "Point", "coordinates" : array-node {101.0, 0.0} },
+    object-node { "type" : "Point", "coordinates" : array-node {101.0, 1.0} },
+    object-node { "type" : "Point", "coordinates" : array-node {100.0, 1.0} },
+    object-node { "type" : "Point", "coordinates" : array-node {100.0, 0.0} }
+  )),
+  geojson:polygon(object-node {
+    "type": "Polygon",
+    "coordinates": array-node {
+      array-node { 
+        array-node {100.0, 0.0}, 
+        array-node {101.0, 0.0}, 
+        array-node {101.0, 1.0}, 
+        array-node {100.0, 1.0},
+        array-node {100.0, 0.0}
+      },
+      array-node { 
+        array-node {100.2, 0.2}, 
+        array-node {100.8, 0.2}, 
+        array-node {100.8, 0.8}, 
+        array-node {100.2, 0.8}, 
+        array-node {100.2, 0.2} 
+      }
+     }
+   }),
+   xdmp:describe(geojson:complex-polygon(object-node {
+    "type": "Polygon",
+    "coordinates": array-node {
+      array-node { 
+        array-node {100.0, 0.0}, 
+        array-node {101.0, 0.0}, 
+        array-node {101.0, 1.0}, 
+        array-node {100.0, 1.0},
+        array-node {100.0, 0.0}
+      },
+      array-node { 
+        array-node {100.2, 0.2}, 
+        array-node {100.8, 0.2}, 
+        array-node {100.8, 0.8}, 
+        array-node {100.2, 0.8}, 
+        array-node {100.2, 0.2} 
+      }
+     }
+   }),(),())
+   
+ 
+(: //Solutions
+cts:long-lat-point("0,100")
+cts:long-lat-point("0,100")
+cts:long-lat-point("1,101")
+cts:linestring("LINESTRING(100 0,101 1)")
+cts:linestring("LINESTRING(100 0,101 1)")
+cts:linestring("LINESTRING(102 2,103 3)")
+cts:box("[-90, -180, 90, 180]")
+cts:circle("@1 0,100")
+cts:polygon("0,100 0,101 1,101 1,100 0,100")
+cts:polygon("0,100 0,101 1,101 1,100 0,100")
+cts:complex-polygon("POLYGON((100 0,101 0,101 1,100 1,100 0), (100.2 0.2,100.8 0.2,100.8 0.8,100.2 0.8,100.2 0.2))")
+:)</query><query name="12-geojson-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://12-GML Functions
+geojson:to-geojson($cts:region) ==&gt; returns Geojson region  
+geojson:parse-geojson( GeoJson region elements) ==&gt; returns cts:region
+geojson:interior-polygon( GeoJson region) ==&gt; returns cts:region
+:)
+ 
+import module namespace geogml = "http://marklogic.com/geospatial/gml" at "/MarkLogic/geospatial/gml.xqy";
+declare namespace gml="http://www.opengis.net/gml/3.2";
+import module namespace geojson = "http://marklogic.com/geospatial/geojson" at "/MarkLogic/geospatial/geojson.xqy";
+
+geojson:to-geojson(cts:point(40, -73)),
+geojson:to-geojson(cts:long-lat-point("1,101")),
+geojson:to-geojson(cts:linestring( (cts:point(37.5, -12.5), cts:point(37, -122.5), cts:point(36.5,-122.5)))),
+geojson:to-geojson(cts:polygon((cts:point(5.0,1.0),cts:point(8.0,1.0),cts:point(8.0,6.0),cts:point(5.0,7.0)))),
+geojson:to-geojson(cts:complex-polygon("POLYGON((100 0,101 0,101 1,100 1,100 0), (100.2 0.2,100.8 0.2,100.8 0.8,100.2 0.8,100.2 0.2))")),
+geojson:parse-geojson(
+  xdmp:unquote('
+    { "type": "Polygon", 
+      "coordinates": [
+        [[1.0, 5.0], [1.0, 8.0], [6.0, 8.0], [7.0, 5.0], [1.0, 5.0]]
+    ]}
+  ')/object-node()
+),
+geojson:interior-polygon(object-node {
+    "type": "Polygon",
+    "coordinates": array-node {
+      array-node { 
+        array-node {100.0, 0.0}, 
+        array-node {101.0, 0.0}, 
+        array-node {101.0, 1.0}, 
+        array-node {100.0, 1.0},
+        array-node {100.0, 0.0}
+      },
+      array-node { 
+        array-node {100.2, 0.2}, 
+        array-node {100.8, 0.2}, 
+        array-node {100.8, 0.8}, 
+        array-node {100.2, 0.8}, 
+        array-node {100.2, 0.2} 
+      }
+     }
+   })
+  
+  
+(: Solutions
+{"type":"Point", "coordinates":[-73, 40]}
+{"type":"Point", "coordinates":[1, 101]}
+{"type":"LineString", "coordinates":[[-12.5, 37.5], [-122.5, 37], [-122.5, 36.5]]}
+{"type":"Polygon", "coordinates":[[[1, 5], [1, 8], [6, 8], [7, 5], [1, 5]]]}
+{"type":"Polygon", "coordinates":[[[100, 0], [101, 0], [101, 1], [100, 1], [100, 0]], [[100.199996948242, 0.200000002980232], [100.800003051758, 0.200000002980232], [100.800003051758, 0.800000011920929], [100.199996948242, 0.800000011920929], [100.199996948242, 0.200000002980232]]]}
+cts:complex-polygon("POLYGON((1 5,1 8,6 8,7 5,1 5))")
+cts:polygon("0.2,100.2 0.2,100.8 0.8,100.8 0.8,100.2 0.2,100.2")
+:)</query><query name="13-geojson-geo-query" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://13-GeoJson query function
+geojson:geospatial-query($region) ==&gt; returns cts:query
+:)
+
+xquery version "1.0-ml";
+import module namespace geojson = "http://marklogic.com/geospatial/geojson" at "/MarkLogic/geospatial/geojson.xqy";
+         
+(: create a document with test data :)
+xdmp:document-insert("first.json",
+  object-node {  
+    "type": "Feature",  
+     "geometry": object-node {    
+        "type": "Point",    
+         "coordinates": array-node {125.6, 8.1}  },  
+     "properties": object-node {    
+       "name": "Test"  
+      }
+   }),
+cts:search(fn:doc(),
+geojson:geospatial-query(cts:box(1, 120, 35, 131), ("uncached"), 2.0))
+
+(: Solution
+{"type":"Feature", "geometry":{"type":"Point", "coordinates":[125.6, 8.1]}, "properties":{"name":"Test"}}
+:)</query><query name="14-geojson-geo-elequery" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(://14-geojson query from nodes function
+geojson:geospatial-query-from-nodes($region) ==&gt; returns cts:query
+:)
+
+xquery version "1.0-ml";
+import module namespace geojson = "http://marklogic.com/geospatial/geojson" at "/MarkLogic/geospatial/geojson.xqy";
+
+(: Create a document with test data :)
+xdmp:document-insert("first.json",
+  object-node {  
+    "type": "Feature",  
+     "geometry": object-node {    
+        "type": "Point",    
+         "coordinates": array-node {125.6, 8.1}  },  
+     "properties": object-node {    
+       "name": "Test"  
+      }}),
+cts:search(fn:doc(),
+geojson:geospatial-query-from-nodes(
+  object-node { 
+    "type": "Polygon",
+    "coordinates": array-node {
+      array-node { 
+        array-node {35, 1}, array-node {131, 1}, array-node {131, 120}, 
+        array-node {35, 120}, array-node {35, 1} 
+      }}}))
+ 
+(://Solution
+{"type":"Feature", "geometry":{"type":"Point", "coordinates":[125.6, 8.1]}, "properties":{"name":"Test"}}
+:)</query><query name="15-geoRSS-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: //15-GeoRSS functions
+georss:point($point)	==&gt; Create a cts:point value from a GeoRSS point element.
+georss:linestring($line)	==&gt; Create a cts:linestring value from a GeoRSS line element.
+georss:circle($circle)	==&gt; Create a cts:circle value from a radius and GeoRSS point element.
+georss:polygon($polygon)	==&gt; Create a cts:polygon value from a sequence of GeoRSS point elements or a GeoRSS polygon element.
+georss:complex-polygon($complexpolygon)	==&gt; Create a cts:complex-polygon value from a GeoRSS "Polygon" element.
+georss:parse-georss($georss-region)	==&gt; Construct zero or more cts:region values from GeoRSS XML elements.
+georss:to-georss($cts-region)	==&gt; Convert cts:region values to GeoRSS XML elements.
+georss:geospatial-query($region)	==&gt; Returns a cts:query matching points within given regions.
+:)
+
+xquery version "1.0-ml";
+import module namespace georss = "http://www.georss.org/georss" at "/MarkLogic/geospatial/georss.xqy";
+
+georss:point(&lt;georss:point&gt;12.5 -127.24&lt;/georss:point&gt;),
+georss:linestring(&lt;georss:line&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/georss:line&gt;),
+georss:circle(47, &lt;georss:point&gt;12.5 -127.24&lt;/georss:point&gt;),
+georss:polygon((
+    &lt;georss:point&gt;12.5 -127.24&lt;/georss:point&gt;,
+    &lt;georss:point&gt;15.25 -127.8&lt;/georss:point&gt;,
+    &lt;georss:point&gt;13.45 -126.1&lt;/georss:point&gt;,
+    &lt;georss:point&gt;12.5 -127.24&lt;/georss:point&gt;)),
+georss:polygon(&lt;georss:polygon&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45&lt;/georss:polygon&gt;),
+xdmp:describe( georss:complex-polygon(&lt;georss:polygon&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45&lt;/georss:polygon&gt;),(),()),
+georss:parse-georss(&lt;georss:point xmlns:georss="http://www.georss.org/georss"&gt;12.5 -127.24&lt;/georss:point&gt;),
+georss:parse-georss(&lt;georss:line xmlns:georss="http://www.georss.org/georss"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/georss:line&gt;),
+georss:parse-georss(&lt;georss:polygon&gt;5.0 1.0 8.0 1.0 8.0 6.0 5.0 7.0 5.0 1.0&lt;/georss:polygon&gt;),
+georss:to-georss(cts:point("12.5,-127.24")),
+georss:to-georss(cts:linestring("LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)")),
+georss:to-georss(cts:polygon((cts:point(5.0,1.0),cts:point(8.0,1.0),cts:point(8.0,6.0),cts:point(5.0,7.0)))),
+xdmp:document-insert("/points.xml",
+                     &lt;root xmlns:georss="http://www.georss.org/georss"&gt;
+                     &lt;item&gt;&lt;georss:point&gt;10.5 30.0&lt;/georss:point&gt;&lt;/item&gt;
+                     &lt;item&gt;&lt;georss:point&gt;15.35 35.34&lt;/georss:point&gt;&lt;/item&gt;
+                     &lt;item&gt;&lt;georss:point&gt;5.11 40.55&lt;/georss:point&gt;&lt;/item&gt;
+                    &lt;/root&gt; ),
+cts:search(doc("/points.xml")//item, 
+  georss:geospatial-query(cts:box(10.0, 35.0, 20.0, 40.0)))
+
+(: //Solution
+cts:point("12.5,-127.24")
+cts:linestring("LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)")
+cts:circle("@47 12.5,-127.24")
+cts:polygon("12.5,-127.24 15.25,-127.8 13.45,-126.1 12.5,-127.24")
+cts:polygon("45.256,-110.45 46.46,-109.48 43.84,-109.86 45.256,-110.45")
+cts:complex-polygon("POLYGON((-110.45 45.256,-109.48 46.46,-109.86 43.84,-110.45 45.256))")
+cts:point("12.5,-127.24")
+cts:linestring("LINESTRING(-110.45 45.256,-109.48 46.46,-109.86 43.84)")
+cts:polygon("5,1 8,1 8,6 5,7 5,1")
+&lt;georss:point xmlns:georss="http://www.georss.org/georss"&gt;12.5 -127.24&lt;/georss:point&gt;
+&lt;georss:line xmlns:georss="http://www.georss.org/georss"&gt;45.256 -110.45 46.46 -109.48 43.84 -109.86&lt;/georss:line&gt;
+&lt;georss:polygon xmlns:georss="http://www.georss.org/georss"&gt;5 1 8 1 8 6 5 7 5 1&lt;/georss:polygon&gt;
+&lt;item xmlns:georss="http://www.georss.org/georss"&gt;&lt;georss:point&gt;15.35 35.34&lt;/georss:point&gt;&lt;/item&gt;
+:)
+
+</query><query name="16-mcgm-functions" focus="false" active="true" content-source="as:17543607842490988103:" mode="xquery">(: //16-mcgm Functions
+mcgm:point	Create a cts:point value from a MCGM Dot element.
+mcgm:circle	Create a cts:circle value from a radius and MCGM Dot element
+mcgm:polygon	Construct a cts:polygon value from a sequence of MCGM Dot elements.
+mcgm:geospatial-query	Returns a cts:query matching points within given regions.
+mcgm:geospatial-query-from-elements	Returns a cts:query matching points within given regions.
+:)
+
+xquery version "1.0-ml";
+import module namespace mcgm = "http://marklogic.com/geospatial/mcgm" at "/MarkLogic/geospatial/mcgm.xqy";
+
+mcgm:point(&lt;Dot Latitude="12.5" Longitude="-127.24"/&gt;),
+mcgm:circle(47, &lt;Dot Latitude="12.5" Longitude="-127.24"/&gt;),
+mcgm:polygon(( &lt;Dot Latitude="12.5" Longitude="-127.24"/&gt;,
+                 &lt;Dot Latitude="15.25" Longitude="-127.8"/&gt;,
+                 &lt;Dot Latitude="13.45" Longitude="-126.1"/&gt;,
+                 &lt;Dot Latitude="12.5" Longitude="-127.24"/&gt;
+              )),
+(: create a document with test data :)
+xdmp:document-insert("/points.xml",
+                      &lt;root xmlns:mcgm="http://marklogic.com/geospatial/mcgm"&gt;
+                      &lt;item&gt;&lt;Dot Latitude="10.5" Longitude="30.0"/&gt;&lt;/item&gt;
+                      &lt;item&gt;&lt;Dot Latitude="15.35" Longitude="35.34"/&gt;&lt;/item&gt;
+                      &lt;item&gt;&lt;Dot Latitude="5.11" Longitude="40.55"/&gt;&lt;/item&gt;
+                      &lt;/root&gt; ),
+cts:search(doc("/points.xml")//item, 
+  mcgm:geospatial-query(cts:box(10.0, 35.0, 20.0, 40.0))),
+cts:search(doc("/points.xml")//item, 
+  mcgm:geospatial-query(cts:box(10.0, 40.0, 20.0, 35.0))),  
+cts:search(doc("/points.xml")//item, 
+  mcgm:geospatial-query(cts:box(10.0, 35.0, 20.0, 40.0)))
+  
+(: Solutions
+cts:point("12.5,-127.24")
+cts:circle("@47 12.5,-127.24")
+cts:polygon("12.5,-127.24 15.25,-127.8 13.45,-126.1 12.5,-127.24")
+&lt;item xmlns:mcgm="http://marklogic.com/geospatial/mcgm"&gt;&lt;Dot Latitude="15.35" Longitude="35.34"/&gt;&lt;/item&gt;
+&lt;item xmlns:mcgm="http://marklogic.com/geospatial/mcgm"&gt;&lt;Dot Latitude="10.5" Longitude="30.0"/&gt;&lt;/item&gt;
+&lt;item xmlns:mcgm="http://marklogic.com/geospatial/mcgm"&gt;&lt;Dot Latitude="15.35" Longitude="35.34"/&gt;&lt;/item&gt;
+:)
+
+
+</query></workspace></export>

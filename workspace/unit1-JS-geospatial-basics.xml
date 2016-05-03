@@ -1,0 +1,297 @@
+<export><workspace name="unit1-JS-geospatial-basics"><query name="1-unit-conversion)" focus="true" active="true" content-source="as:17543607842490988103:" mode="javascript">/* San Francisco is defined in terms of latitude and longitude
+Degrees Minutes Seconds ( DMS )
+Latitude: 37° 46' 26.2992''
+Longitude: 122° 25' 52.6692''
+
+Degrees Decimal Minutes ( DDM )
+Latitude: 37°46.43832′ N
+Longitude: 122°25.87782′ W
+
+Decimal Degrees ( DD )
+Latitude: 37.773972
+Longitude: -122.431297
+
+Radians
+Latitude is 0.65929
+Longitude is 2.13662 */
+var PI = 3.14159265358979323946;
+
+// Degrees Minutes Seconds (DMS) :)
+var DmsDegrees = 37
+var DmsMinutes = 46
+var DmsSeconds = 26.2992
+var DmsLatitude = fn.concat(DmsDegrees,"° ",DmsMinutes,"' ",DmsSeconds,"' N")
+
+//Degrees Decimal Minutes (DDM) :)
+var DdmMinutes = DmsMinutes+xs.float(DmsSeconds/60)
+var DdmLatitude = fn.concat(DmsDegrees,"° ",DdmMinutes,"'N")
+
+
+//Decimal Degrees (DD) 
+var DdLatitude =  DmsDegrees+ (DmsMinutes+ DmsSeconds/60)/60
+
+//Radians 
+var Radians = DdLatitude* (PI/180)
+
+var result ={"DmsLatitude":DmsLatitude,
+             "DdmLatitude":DdmLatitude,
+             "DdLatitude":DdLatitude,
+             "Radians":Radians}
+             
+result
+
+/* Solution
+ "DmsLatitude":"37° 46' 26.2992' N", 
+ "DdmLatitude":"37° 46.4383200109005'N", 
+ "DdLatitude":37.773972, 
+ "Radians":0.659280182956148}
+*/</query><query name="2-Points" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*Functions
+1.cts.point(37,-12 ) =&gt; returns a point value[ Constructor ]
+2.cts.pointLatitude(point) =&gt; Returns a point's latitude value[ Basic Operation ]
+3.cts.pointLongitude(point) =&gt; Returns a point's longitude value[ Basic Operation ]
+4.geo.distance(p1,p2) =&gt; returns the distance (in miles) between two points[ Additional Operations ]
+5.geo.bearing(p1,p2) =&gt; returns the true bearing in radians of the path from the first point to the second.[ Additional Operations ]
+6.geo.arcIntersection(p1,p2,p3,p4) =&gt; returns the point at the intersection of two arcs[ Additional Operations ]
+7.geo.destination(p,bearing,distance) =&gt; returns the point at the given distance[ Additional Operations ]
+*/
+
+// Constructors
+var point1 = cts.point(37, -122)
+var point2 = cts.point(40, -73)
+var point3 = cts.point(35,-100)
+var point4 = cts.point(41,-70)
+
+//Basic Operations 
+var latitude1 = cts.pointLatitude(point1)
+var longitude1 =  cts.pointLongitude(point1)
+
+// Additional Operations 
+var distance12 = geo.distance(point1, point2)
+var bearing12 =   geo.bearing(point1, point2)
+var intersection1234 = geo.arcIntersection(point1, point2, point3, point4)
+var destination12 = geo.destination(point1, bearing12, distance12)
+
+var result = {"point1":point1, "point2":point2,"point3":point3, "point4":point4,
+             "latitude1":latitude1,"longitude1":longitude1, "distance12":distance12,
+            "bearing12":bearing12,"intersection1234":intersection1234, "destination12": destination12 }
+result
+
+/* Solution 
+
+ "point1":"37,-122", 
+ "point2":"40,-73",
+ "point3":"35,-100",
+ "point4":"41,-70",
+ "latitude1":37,
+ "longitude1":-122,
+ "distance12":2630.54620397121,
+ "bearing12":1.2212785952625,
+ "intersection1234":"40.458347,-76.203682",
+ "destination12":"40,-73"
+*/</query><query name="3-Linestring" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/*
+//Functions
+cts.linestring( (cts:point(37, -12), cts:point(37, -12) ) =&gt; returns a geospatial linestring value[ Constructor ]
+cts.linestringVertices($linestring) =&gt; Returns a linestring's vertices[ Basic Operation ]
+geo.linestringConcat($linestrings) construct a linestring by concatenating the vertices of the input linestrings[ Additional Operations ]
+geo.linestringReverse($linestring) construct a linestring with the vertices in reverse order.[ Additional Operations ]
+geo.boundingBoxes($region) returns a sequence of boxes that bound the given region[ Additional Operations ]
+geo.shortestDistance returns the great circle distance between a point and a region[ Additional Operations ]
+geo.countDistinctVertices($region) return a count of the distinct number of vertices in a region[ Additional Operations ]
+geo.regionApproximate($region, threshold) returns a simplified approximation of the region[ Additional Operations ]
+*/
+
+var geo = require("/MarkLogic/geospatial/geospatial");
+
+// Constructors
+var linestring1 = cts.linestring ([cts.point(37.5, -122), cts.point(37, -122), cts.point(36.5,-122)] )
+var linestring2 = cts.linestring([cts.point(37.5, -12.5), cts.point(37, -122.5), cts.point(36.5,-122.5)] ) 
+
+// Basic Operations
+var vertices =  cts.linestringVertices(linestring1)
+
+// Additional Operations
+var concat = geo.linestringConcat((linestring1, linestring2))
+var reverse = geo.linestringReverse(linestring1)  
+var boundingbox = geo.boundingBoxes(linestring1)
+var shortestdistance = geo.shortestDistance(cts.point(36, -122),linestring1 )
+var distinctvertices = geo.countDistinctVertices(linestring1)
+var regionapproximate = geo.regionApproximate(linestring1, 400)
+
+var result = {"linestring1":linestring1, "linestring2":linestring2,"vertices":vertices, "concat":concat,
+             "reverse":reverse,"boundingbox":boundingbox, "shortestdistance":shortestdistance,
+            "distinctvertices":distinctvertices,"regionapproximate":regionapproximate}
+result
+
+/* Solution
+"linestring1":"LINESTRING(-122 37.5,-122 37,-122 36.5)", 
+"linestring2":"LINESTRING(-12.5 37.5,-122.5 37,-122.5 36.5)", 
+"vertices":["37.5,-122", "37,-122", "36.5,-122"], 
+"concat":"LINESTRING(-12.5 37.5,-122.5 37,-122.5 36.5)", 
+"reverse":"LINESTRING(-122 36.5,-122 37,-122 37.5)", 
+"boundingbox":"[36.5, -122.00001, 37.5, -122.00001]", 
+"shortestdistance":34.4748460745432, 
+"distinctvertices":3, 
+"regionapproximate":"LINESTRING(-122.00001 37.5,-122.00001 36.5)"
+*/</query><query name="4-circle" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* Functions
+cts.circle(20, cts.point(37.655983, -122.425525)) =&gt; Returns a geospatial circle value.[ Constructor ]
+cts.circle-center(circle) =&gt; Returns a circle's center point[ Basic Operation ]
+cts.circle-radius(circle) =&gt; Returns a circle's radius[ Basic Operation ]
+geo.interior-point(region) returns a point inside the region[ Additional Operations ]
+geo.distance-convert(distance,unit1,unit2) converts a distance from one unit of measure to another[ Additional Operations ]
+*/
+
+var geo = require("/MarkLogic/geospatial/geospatial");
+
+// Constructor 
+var circle =  cts.circle(20, cts.point(37.655983, -122.425525))  
+
+// Basic Operations 
+var circlecenter =  cts.circleCenter(circle)  
+var circleradius =  cts.circleRadius(circle)
+
+// Additional Operations 
+var interiorpoint =  geo.interiorPoint(circle)  
+var distanceconvert = geo.distanceConvert(15, "meters", "miles")  
+
+var result = {"circle":circle, "circlecenter":circlecenter,"circleradius":circleradius, "interiorpoint":interiorpoint,
+            "distanceconvert":distanceconvert}
+
+result
+
+/*Solution
+"circle":"@20 37.655983,-122.42552", 
+"circlecenter":"37.655983,-122.42552", 
+"circleradius":20, 
+"interiorpoint":"37.655983,-122.42552", 
+"distanceconvert":0.00932056788356001}
+*/</query><query name="5-box" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //Functions
+cts.box(45, -122, 78, 30) =&gt; Returns a geospatial box value[ Constructor ]
+cts.box-east($box)=&gt; Returns a box's eastern boundary.[ Basic Operation ]
+cts.box-north(box)=&gt; Returns a box's northern boundary.[ Basic Operation ]
+cts.box-south(box) =&gt; Returns a box's southern boundary.[ Basic Operation ]
+cts.box-west(box) =&gt; Returns a box's western boundary. [ Basic Operation ]
+geo.box-intersects(box,circle) =&gt; Returns true if the box intersects with a region.[ Additional Operations ]
+geo.approx-center(region) returns the center point of the region[ Additional Operations ]
+geo.count-vertices(region) returns a count of the number of vertices in a region[ Additional Operations ]
+*/
+
+// Constructors 
+var box = cts.box(45, 122, 78, 30)
+var circle =  cts.circle(20, cts.point(37.655983, 122.425525))
+
+// Basic Operations 
+var boxeast = cts.boxEast(box)
+var boxnorth = cts.boxNorth(box)
+var boxsouth = cts.boxSouth(box)  
+var boxwest = cts.boxWest(box)  
+
+// Additional Operations 
+var boxintersects = geo.boxIntersects(box, circle)  
+var boxcenter = geo.approxCenter(box)  
+var boxvertices = geo.countVertices(box)  
+
+var result = {"box":box, "boxeast":boxeast,"boxnorth":boxnorth, "boxsouth":boxsouth,
+            "boxwest":boxwest, "boxintersects":boxintersects, "boxcenter":boxcenter, "boxvertices":boxvertices}
+
+result
+
+/* //Solution
+
+//Constructor 
+"box":"[45, 122, 78, 30]", 
+"boxeast":30, 
+"boxnorth":78, 
+"boxsouth":45, 
+"boxwest":122, 
+"boxintersects":false, 
+"boxcenter":"0,0", 
+"boxvertices":4
+*/</query><query name="6-polygon" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //Functions
+cts.polygon(cts:point( 10 , -12 ),cts:point( 32 , 42 ),cts:point( 67 ,90 )) =&gt; Returns a geospatial polygon value.[ Constructor ]
+geo.circle-polygon(cts:circle(7,cts:point(10,20)),4) constructs a polygon approximating a circle [ Constructor ]
+cts.polygon-vertices( $polygon) =&gt; Returns a polygon's vertices[ Basic Operation ]
+geo.polygonContains(polygon,circle) =&gt; Returns true if the polygon contains a region.[ Additional Operations ]
+geo.polygonIntersects(polygon,circle) =&gt; Returns true if the polygon intersects a region.[ Additional Operations ]
+geo.polygonToLinestring(polygon) =&gt; Constructs a linestring from the vertices of a polygon[ Additional Operations ]
+geo.regionClean(region) fixes various problems with the region ( remove duplicate adjacent vertices)[ Additional Operations ]
+*/
+
+var geo = require("/MarkLogic/geospatial/geospatial");
+
+// Constructors 
+var point1 =  cts.point( 10,-12 )
+var point2 =  cts.point(32,42 )
+var point3 =   cts.point(67,90 )
+var points = [point1, point2, point3];
+var polygon = cts.polygon(points)
+var point = cts.point(1,1)
+var circle =  cts.circle(20, point)
+var circlepolygon = geo.circlePolygon(circle,4)  
+
+// Basic Operations 
+var polygonvertices = cts.polygonVertices(polygon)  
+
+// Additional Operations 
+var polygoncontains = geo.polygonContains(polygon, circle)
+var polygonintersects = geo.polygonIntersects(polygon, circle)  
+var polygontolinestring = geo.polygonToLinestring(polygon)  
+var regionclean = geo.regionClean(polygon)  
+
+var result = {"polygon":polygon, "circlepolygon":circlepolygon,"polygonvertices":polygonvertices, "polygoncontains":polygoncontains,
+            "polygonintersects":polygonintersects, "polygontolinestring":polygontolinestring, "polygontolinestring":polygontolinestring, "regionclean":regionclean}
+result
+
+/* //Solution
+"polygon":"10,-12 32,42 67,90 10,-12", 
+"circlepolygon":"1.2910872,1 1.2058229,1.2044971 0.99998719,1.2891834 0.794164,1.2044716 0.70891231,1 0.794164,0.79552829 0.99998719,0.71081656 1.2058229,0.79550284 1.2910872,1", 
+"polygonvertices":["10,-12", "32,42", "67,90", "10,-12"], 
+"polygoncontains":false, 
+"polygonintersects":false, 
+"polygontolinestring":"LINESTRING(-12 10,42 32,90 67)", 
+"regionclean":"10,-12 32,42 67,90 10,-12"
+*/</query><query name="7-complex-polygon" focus="false" active="true" content-source="as:17543607842490988103:" mode="javascript">/* //Functions
+cts.complexPolygon(outer-polygon,inner-polygon) =&gt; Returns a geospatial complex polygon value.[ Constructor ]
+cts.complexPolygon-outer($complex-polygon) =&gt; Returns a complex polygon's outer polygon.[ Basic Operation ]
+cts.complexPolygonOuter($complex-polygon) =&gt; Returns a complex polygon's inner polygon.[ Basic Operation ]
+geo.complexPolygonIntersects($complex-polygon, $circle) =&gt; Returns true if the complex-polygon intersects with a region.[ Additional Operations ]
+geo.complexPolygonContains($complex-polygon, $circle) =&gt; Returns true if the complex-polygon contains a region.[ Additional Operations ]
+geo.regionAffineTransform($region, $transform) perform transform(translation/scaling/rotation/shearing/reflection) on a  region[ Additional Operations ]
+geo.removeDuplicateVertices($region) removes duplicate (adjacent) vertices[ Additional Operations ]
+*/
+
+var geo = require("/MarkLogic/geospatial/geospatial");
+// Constructors 
+var polygon1 = cts.polygon([cts.point(1.5,0),cts.point(2.5,1),cts.point(1.5,2),cts.point(0.5,2),cts.point(0.5,0),cts.point(1.5,0)])
+var polygon2 = cts.polygon([cts.point(2.0,2.0),cts.point(2.0,4.0),cts.point(8.0,4.0),cts.point(12.0,4.0),cts.point(12.0,10.0),cts.point(8.0,10.0),cts.point(5.0,14.0)])
+var complexpolygon = cts.complexPolygon(polygon1, polygon2)
+var circle = cts.circle(20, cts.point(37.655983, -122.425525))
+
+// Basic Operations 
+var complexpolygonouter = cts.complexPolygonOuter(complexpolygon)
+var complexpolygoninner = cts.complexPolygonInner(complexpolygon)
+
+// Additional Operations 
+var complexpolygonintersects = geo.complexPolygonIntersects(complexpolygon, circle)
+var complexpolygoncontains = geo.complexPolygonContains(complexpolygon, circle)
+var reflection = geo.regionAffineTransform(complexpolygon, xdmp.fromJsonString('{reflection: { lineR: {start: [2.5,0], end:[2.5,2.0]} }}'))
+//var rotation = geo.regionAffineTransform(complexpolygon, xdmp.fromJsonString('{rotation: {angle:'||math:radians(45)||', prot:[2.0,2.0]}}'))
+var scaling = geo.regionAffineTransform(complexpolygon, xdmp.fromJsonString('{scaling: {sx: 2.0, sy: 2.0}}'))
+var translation = geo.regionAffineTransform(complexpolygon, xdmp.fromJsonString('{translation: {tx:10,ty:10}}' ))
+var removeduplicatevertices = geo.removeDuplicateVertices(complexpolygon)
+
+var result = {"complexpolygon":complexpolygon, "complexpolygonouter":complexpolygonouter,"complexpolygoninner":complexpolygoninner, "complexpolygonintersects":complexpolygonintersects,
+"complexpolygoncontains":complexpolygoncontains, "reflection":reflection, "scaling":scaling,
+"translation":translation, "removeduplicatevertices":removeduplicatevertices}
+result
+
+/* Solution
+"complexpolygon":"POLYGON((0 1.5,1 2.5,2 1.5,2 0.5,0 0.5,0 1.5), (2 2,4 2,4 8,4 12,10 12,10 8,14 5,2 2))", 
+"complexpolygonouter":"1.5,0 2.5,1 1.5,2 0.5,2 0.5,0 1.5,0", 
+"complexpolygoninner":"2,2 2,4 8,4 12,4 12,10 8,10 5,14 2,2", 
+"complexpolygonintersects":false, 
+"complexpolygoncontains":false, 
+"reflection":"POLYGON((0 3.5,1 2.5,2 3.5,2 4.5,0 4.5,0 3.5), (2 3,4 3,4 -3,4 -7,10 -7,10 -3,14 0,2 3))", 
+"scaling":"POLYGON((0 3,2 5,4 3,4 1,0 1,0 3), (4 4,8 4,8 16,8 24,20 24,20 16,28 10,4 4))", 
+"translation":"POLYGON((10 11.5,11 12.5,12 11.5,12 10.5,10 10.5,10 11.5), (12 12,14 12,14 18,14 22,20 22,20 18,24 15,12 12))", 
+"removeduplicatevertices":"POLYGON((0 1.5,1 2.5,2 1.5,2 0.5,0 0.5,0 1.5), (2 2,4 2,4 8,4 12,10 12,10 8,14 5,2 2))"}
+*/</query></workspace></export>

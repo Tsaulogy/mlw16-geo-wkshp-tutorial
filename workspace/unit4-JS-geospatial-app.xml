@@ -1,0 +1,71 @@
+<export><workspace name="unit4-JS-geospatial-app"><query name="4.1(a) - Create Alert Config" focus="false" listorder="1" taborder="1" active="true" database="9059189350391337657" server="17543607842490988103" mode="javascript">var alert = require("/MarkLogic/alert.xqy");
+
+declareUpdate();
+alert.configInsert(
+  alert.makeConfig(
+    "http://example.com/crime-alert",
+    "Crime Alerts",
+    "Alerting config for crime alerts.",
+    {}))
+
+
+</query><query name="4.1(b) - Create Alert Action" focus="false" listorder="2" taborder="2" active="true" database="9059189350391337657" server="17543607842490988103" mode="javascript">var alert = require("/MarkLogic/alert.xqy");
+
+declareUpdate();
+alert.actionInsert(
+  "http://example.com/crime-alert",
+  alert.makeAction(
+    "set-collection",
+    "Sets the collection of the document",
+    xdmp.modulesDatabase(),
+    xdmp.modulesRoot(),
+    "setcollection.sjs",
+    {}))</query><query name="4.1(c) - Create Trigger" focus="false" listorder="3" taborder="3" active="true" database="9059189350391337657" server="17543607842490988103" mode="javascript">var alert = require("/MarkLogic/alert.xqy");
+var trgr = require("/MarkLogic/triggers.xqy");
+
+var uri = "http://example.com/crime-alert";
+
+declareUpdate();
+alert.configInsert(
+  alert.configSetTriggerIds(
+    alert.configGet(uri),
+    alert.createTriggers(
+      uri, 
+      trgr.triggerDataEvent(
+        trgr.directoryScope("/crime-points/", "1"),
+        trgr.documentContent("create"),
+        trgr.postCommit()))));</query><query name="4.2(a) - Create a Sample Rule" focus="false" listorder="4" taborder="4" active="true" database="9059189350391337657" server="17543607842490988103" mode="javascript">var alert = require("/MarkLogic/alert.xqy");
+
+declareUpdate();
+
+//this polygon represents the bounds of Golden Gate Park
+var poly = cts.polygon("POLYGON((-122.51035 37.76393,-122.51112 37.771258,-122.46589 37.773429,-122.45447 37.774785,-122.45293 37.766372,-122.45739 37.76583,-122.45876 37.766372,-122.51035 37.76393))");
+var geoQuery = cts.elementAttributePairGeospatialQuery(
+  xs.QName("location"),
+  xs.QName("latitude"),
+  xs.QName("longitude"),
+  poly);
+
+var rule = alert.makeRule(
+  "Golden Gate Park", 
+  "Alert me when a crime occurs in Golden Gate Park.", 
+  "0",
+  geoQuery,  
+  "set-collection", 
+  {});
+alert.ruleInsert(
+  "http://example.com/crime-alert",
+  rule);</query><query name="4.2(b) - Get All Rules" focus="false" listorder="5" taborder="5" active="true" database="9059189350391337657" server="17543607842490988103" mode="javascript">var alert = require("/MarkLogic/alert.xqy");
+
+alert.getAllRules("http://example.com/crime-alert",cts.trueQuery())
+</query><query name="4.2(c) - Insert Test Document" focus="false" listorder="6" taborder="6" active="true" database="9059189350391337657" server="17543607842490988103" mode="javascript">declareUpdate();
+xdmp.documentInsert("/crime-points/test.json", xdmp.unquote("&lt;row&gt;&lt;category&gt;REGULATORY&lt;/category&gt;&lt;descript&gt;EXCESSIVELY SILLY WALK&lt;/descript&gt;&lt;date&gt;2016-04-26&lt;/date&gt;&lt;location latitude=\"37.767865\" longitude=\"-122.5066566\"&gt;&lt;/location&gt;&lt;/row&gt;"));</query><query name="4.2(d) - Verify Test Document's Collections" focus="false" listorder="7" taborder="7" active="true" database="9059189350391337657" server="17543607842490988103" mode="javascript">xdmp.documentGetCollections("/crime-points/test.json")</query><query name="Delete Test Document" focus="false" listorder="8" taborder="8" active="true" database="9059189350391337657" server="17543607842490988103" mode="javascript">declareUpdate();
+xdmp.documentDelete("/crime-points/test.json");</query><query name="Clear All Rules" focus="true" listorder="9" taborder="9" active="true" database="9059189350391337657" server="3157198157855269707" mode="javascript">var alert = require("/MarkLogic/alert.xqy");
+
+declareUpdate();
+var uri = "http://example.com/crime-alert";
+var a = alert.getAllRules(uri, cts.trueQuery());
+a.forEach(function(rule) {
+  var id = alert.ruleGetId(rule);
+  alert.ruleRemove(uri, id)
+});</query></workspace></export>
