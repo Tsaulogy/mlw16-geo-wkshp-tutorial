@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>A MarkLogic Geospatial App</title>
+  <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="leaflet/leaflet.css">
+  <link rel="stylesheet" href="leaflet/leaflet.draw.css">
+  <script src="leaflet/leaflet-src.js"></script>
+  <script src="leaflet/leaflet.draw.js"></script>
+  <script src="leaflet/leaflet-heat.js"></script>
+  <script src="jquery-1.12.1.min.js"></script>
+  <script src="peekabar.js"></script>
+  <script type="text/javascript">
+var alertsPage = false;
+var map;
+var layers = [];
+var drawControl;
+var drawnSearchItems;
+var drawnAlertItems;
+var heat;
+var alerts;
+var alertsInitialized = false;
+var currentEventLayer;
+
+
+function initialize() {
+  var mapOpts = {
+    maxBounds: [[37.54, -122.54],[37.93, -122.3199999]],
+    maxZoom: 16,
+    minZoom: 10
+  };
+  map = L.map('map-canvas',mapOpts).setView([37.7833, -122.4167], 13);
+  var layerOpts = {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  };
+  L.tileLayer('tiles/{z}/{x}/{y}.png', layerOpts).addTo(map);
+  drawnSearchItems = new L.FeatureGroup();
+  drawnAlertItems = new L.FeatureGroup();
+  map.addLayer(drawnSearchItems);
+
+  drawControl = new L.Control.Draw({
+    /* edit: {
+      featureGroup: drawnSearchItems
+    } */
+    edit: false,
+    draw: {
+      polyline: false,
+      rectangle: false,
+      circle: false,
+      marker: { repeatMode: true }
+    }
+  });
+  map.addControl(drawControl);
+
+  map.on('draw:created', function (e) {
+    var type = e.layerType,
+        layer = e.layer;
+
+    if (type === 'marker') {
+      var latLng = layer.getLatLng();
+      var latLngString = latLng.lat + ', ' + latLng.lng;
+      layer.bindPopup(latLngString);
+    }
+    if (alertsPage) {
+      clearAlertLayers();
+      drawnAlertItems.addLayer(layer);
+    } else {
+      drawnSearchItems.addLayer(layer);
+      $("#clear-button").prop("disabled",false);
+    }
+    if (type === 'marker') {
+      layer.openPopup();
+    }
+  });
+
+  $("#clear-button").prop("disabled",true);
+  $("#alerts-page").hide();
+}
+window.onload = initialize;
+
+function onEachFeature(feature, layer) {
+  if (feature.properties) {
+    var popupHtml = '';
+    var resultHtml = '';
+    if (feature.properties.name) {
+      popupHtml = '<p><b>' + feature.properties.name + '.</b> ';
+      resultHtml = '<h3>' + feature.properties.name + '</h3><p>';
+      if (feature.properties.description) {
+        if (typeof feature.properties.description == 'string') {
+          popupHtml += feature.properties.description;
+          resultHtml += feature.properties.description;
+        } else if (typeof feature.properties.description == 'object') {
+          var str = '';
+          for (var key in feature.properties.description) {
+            if (feature.properties.description.hasOwnProperty(key)) {
+              str += key + ': ';
+              str += feature.properties.description[key] + '<br>';
+            }
+          }
+          popupHtml += str;
+          resultHtml += str;
+        }
+      }
+      popupHtml += '</p>';
+      resultHtml += '</p>';
+    }
+
+    layer.bindPopup(popupHtml);
+
+    var resultDiv = document.createElement( "div" );
+    var center = L.geoJson(feature).getBounds().getCenter();
+    resultDiv.onclick = function(e) {
+      map.panTo(center);
+      layer.openPopup();
+    };
+    $(resultDiv).addClass("result");
+    $(resultDiv).append(resultHtml);
+    $("#results-area").append(resultDiv);
+  }
+}
+
+function drawGeojson(geojsonFeature) {
+  var opts = {
+    onEachFeature: onEachFeature
+  };
+  var layer = L.geoJson(geojsonFeature,opts).addTo(map);
+  layers.push(layer);
+}
+
+function message(html) {
+  var messageBar = $.peekABar({
+    html: html,
+    delay: 10000,
+    autohide: true,
+    padding: '10px',
+    backgroundColor: 'rgb(195, 195, 195)',
+    animation: {
+      type: 'slide',
+      duration: '2000'
+    },
+    cssClass: 'message-bar',
+    position: 'bottom',
+    closeOnClick: true
+  });
+  messageBar.show();
+}
+
+function errorMessage(string) {
+}
+
+function processSearchResults(data) {
+  if (data.results) {
+    drawGeojson(data.results);
+  }
+  if(data.message) {
+    message(data.message);
+  }
+  $("#clear-button").prop("disabled",false);
+}
+
+function doPost(url, str, success, drawnLayer) {
+  clearResults();
+  var payload = {
+    searchString: str,
+    mapWindow: [
+      map.getBounds().getSouth(),
+      map.getBounds().getWest(),
+      map.getBounds().getNorth(),
+      map.getBounds().getEast()
+    ],
+    searchRegions: drawnLayer.toGeoJSON()
+  };
+  $.ajax({
+    type: "POST",
+    url: url,
+    data: JSON.stringify(payload),
+    contentType: "application/json",
+    dataType: "json",
+    success: success
+  });
+}
+
+function doSearch() {
+  doPost("search.sjs",$("#search-box").val(),processSearchResults,drawnSearchItems);
+}
+
+function processHeatmap(data) {
+  if(data.message) {
+    message(data.message);
+  }
+  var max = 1.0;
+  if(data.max) {
+    max = data.max;
+  }
+  if(data.results) {
+    //data.results should be an array of [lat, lng, intensity].
+    heat = L.heatLayer(data.results, {radius: 100, max: max, maxZoom:15}).addTo(map);
+  }
+  $("#clear-button").prop("disabled",false);
+}
+
+function doHeatmap() {
+  doPost("heatmap.sjs",$("#search-box").val(),processHeatmap,drawnSearchItems);
+}
+
+function clearResults() {
+  for (var layer of layers) {
+    layer.clearLayers();
+    map.removeLayer(layer);
+  }
+  layers = [];
+  if(heat) {
+    map.removeLayer(heat);
+  }
+  heat = null;
+  $("#results-area").html("");
+}
+
+function clearSearch() {
+  drawnSearchItems.clearLayers();
+  clearResults();
+  $("#clear-button").prop("disabled",true);
+  $("#search-box").val("");
+}
+
+function notify(str) {
+  if (!("Notification" in window) || Notification.permission === "denied") {
+    message(str);
+  } else if (Notification.permission === "granted") {
+    // If it's okay let's create a notification
+    var notification = new Notification(str);
+    message(str);
+  } else {
+    Notification.requestPermission(function (permission) {
+      if (permission === "granted") {
+        var notification = new Notification(str);
+        message(str);
+      }
+    });
+  }
+}
+
+function activateSearchPage() {
+  if(alertsPage) {
+    clearAlertLayers();
+    alertsPage = false;
+    $("#search-tab").removeClass("tab").addClass("tab-active");
+    $("#alerts-tab").removeClass("tab-active").addClass("tab");
+    $("#search-page").show();
+    $("#alerts-page").hide();
+    if (drawnSearchItems) map.addLayer(drawnSearchItems);
+    if (drawnAlertItems) map.removeLayer(drawnAlertItems);
+    if (heat) map.addLayer(heat);
+    for (var layer of layers) {
+      if (layer) map.addLayer(layer);
+    }
+  }
+}
+
+function clearAlertLayers() {
+  if (drawnAlertItems) drawnAlertItems.clearLayers();
+  for (var akey in alerts) {
+    if (alerts.hasOwnProperty(akey)) {
+      for (var ekey in alerts[akey].events) {
+        if (alerts[akey].events.hasOwnProperty(ekey)) {
+          map.removeLayer(alerts[akey].events[ekey].layer);
+        }
+      }
+      map.removeLayer(alerts[akey].layer);
+    }
+  }
+}
+
+function processEvent(event, alert) {
+  if (!event.properties.id) return false;
+  var e = {};
+  if (!alert.events[event.properties.id]) {
+    e.id = event.properties.id;
+    e.name = event.properties.name;
+    e.description = event.properties.description;
+    e.layer = L.geoJson(event);
+    alert.events[e.id] = e;
+    var html = "<p><b>" + e.name + "</b><br>" + e.description + "</p>";
+    e.layer.bindPopup(html);
+    e.div = $("<div></div>").append(html).addClass("result").addClass("alert-result");
+    var center = e.layer.getBounds().getCenter();
+    e.div.click(function() {
+      clearAlertLayers();
+      map.panTo(center);
+      map.addLayer(e.layer);
+      e.layer.openPopup();
+    });
+    alert.div.after(e.div);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function processAlert(alert) {
+  if (!alert.properties.id) return;
+  var a = {};
+  var count = 0;
+  if (!alerts[alert.properties.id]) {
+    a.id = alert.properties.id;
+    a.name = alert.properties.name;
+    a.layer = L.geoJson(alert);
+    a.layer.bindPopup(a.name);
+    a.events = {};
+    var html = "<h3>&#x25BC;&nbsp;&nbsp;" + a.name + "</h3>";
+    a.div = $("<div></div>").append(html).addClass("result");
+    var center = a.layer.getBounds().getCenter();
+    a.div.click(function() {
+      clearAlertLayers();
+      map.panTo(center);
+      map.addLayer(a.layer);
+      a.layer.openPopup();
+    });
+    $("#alerts-area").append(a.div);
+    alerts[a.id] = a;
+  } else {
+    a = alerts[alert.properties.id];
+  }
+  for (var event of alert.properties.events) {
+    if (processEvent(event, a)) count++;
+  }
+  return count;
+}
+
+function processAlerts(data) {
+  if (data.type && data.type === "FeatureCollection" && data.features) {
+    var count = 0;
+    for (var feature of data.features) {
+      var res = processAlert(feature);
+      count += res;
+    }
+    if (count > 0) {
+      var msg = "Alert: " + count + " new events.";
+      if (alertsInitialized) notify(msg);
+    }
+  } else {
+    message("Invalid alerts data returned from alerts.sjs");
+  }
+  if (!alertsInitialized) alertsInitialized = true;
+}
+
+function pollAlerts() {
+  setTimeout(function() {
+    $.ajax({
+      type: "POST",
+      url: "alerts.sjs",
+      data: "",
+      contentType: "application/json",
+      dataType: "json",
+      success: processAlerts,
+      complete: pollAlerts
+    });
+  }, 10000);
+}
+
+function initAlerts() {
+  if (("Notification" in window) && Notification.permission !== "denied" && Notification.permission !== "granted") {
+    Notification.requestPermission(function() {});
+  }
+  alerts = {};
+  $.ajax({
+    type: "POST",
+    url: "alerts.sjs",
+    data: "",
+    contentType: "application/json",
+    dataType: "json",
+    success: processAlerts,
+    complete: pollAlerts
+  });
+}
+
+function activateAlertsPage() {
+  if(!alertsPage) {
+    if (!alertsInitialized) initAlerts();
+    alertsPage = true;
+    $("#search-tab").removeClass("tab-active").addClass("tab");
+    $("#alerts-tab").removeClass("tab").addClass("tab-active");
+    $("#search-page").hide();
+    $("#alerts-page").show();
+    if(drawnSearchItems) map.removeLayer(drawnSearchItems);
+    if(drawnAlertItems) map.addLayer(drawnAlertItems);
+    if(heat) map.removeLayer(heat);
+    for (var layer of layers) {
+      if (layer) map.removeLayer(layer);
+    }
+  }
+}
+
+function processNewAlert(data) {
+  if (data.message) {
+    message(data.message);
+  }
+}
+
+function newAlert() {
+  doPost("newalert.sjs", $("#alert-name-box").val(), processNewAlert, drawnAlertItems);
+}
+  </script>
+</head>
+
+
+<body>
+  <div id="search-bar">
+    <div id="tab-bar">
+      <span class="tab-active" id="search-tab" onclick="activateSearchPage();">Search</span><span class="tab" id="alerts-tab" onclick="activateAlertsPage();">Alerts</span>
+    </div>
+    <div id="search-page">
+      <div id="search-box-area">
+        <input type="text" id="search-box" placeholder="Enter search text...">
+      </div>
+      <div id="search-button-area">
+        <button type="button" class="button" onclick="doSearch();">Search</button>
+        <button type="button" class="button" onclick="doHeatmap();">Crime Heatmap</button>
+        <button type="button" class="button" id="clear-button" onclick="clearSearch();">Clear</button>
+      </div>
+      <div id="results-area" class="result-area"></div>
+    </div>
+    <div id="alerts-page">
+      <div id="new-alert-area">
+        <div class="result">
+          <h3>Define a new alert</h3>
+          <p>Type the name below and draw the alert region on the map.</p>
+        </div>
+        <div id="alert-name-box-area">
+          <input type="text" id="alert-name-box" placeholder="Alert name...">
+        </div>
+        <div id="alert-button-area">
+          <button type="button" class="button" onclick="newAlert()">Create</button>
+        </div>
+      </div>
+      <div id="alerts-area" class="result-area"></div>
+    </div>
+  </div>
+  <div id="map-canvas"></div>
+</body>
+
+
+</html>

@@ -1,0 +1,143 @@
+Unit 4 Exercises
+----------------
+
+Section 1 - Explore the app.
+
+1.1. Open the Admin UI at localhost:8001. Navigate to Groups > Default >
+App Servers > mlw16-geo-wkshp-appserver. This app server was set up by the
+installation script. Check that the "root" field is set to the directory where
+you ran the installation script. The port is set to 8888. "Modules" is set to
+"(file system)", and "database" is "mlw16-geo-wkshp".
+
+1.2. Open the application at localhost:8888/main.html. Observe that unlike the
+demo, this application does not work (yet). In the following exercises, you will
+be writing the code that will enable the application to perform geospatial
+searches, heatmaps, and alerting.
+
+1.3. Open Logs/ErrorLog.txt and observe the errors that are recorded there. The
+input received by the *.sjs files will also be recorded there.
+
+1.4. Open the file search.sjs in your preferred text editor. This file is
+responsible for performing the search and returning the results to the user.
+Observe that there is already code for parsing the input and formatting the
+output. The area where you will write code is marked by lines of /////////.
+We will write code here in the exercises in section 2.
+
+1.5. Open the other *.sjs files and study them. We will write code for these
+in the later sections. The files are:
+  search.sjs        - Performs geospatial + text search.
+  heatmap.sjs       - Generates the crime heatmap.
+The other *.sjs files are for the alerting feature:
+  alerts.sjs        - Displays the alerts to the user.
+  newalert.sjs      - Creates a new alert.
+  setcollection.sjs - The action fired by the alert rule.
+
+
+
+Section 2 - Geospatial + Text Search
+
+In this section we will write the code to perform geospatial + text search from
+the app. Open the file search.sjs in a text editor or IDE to begin.
+
+2.1. Write an element geospatial query on the <coordinates> element to search
+for KML files that have coordinates within the search region(s). Perform a
+cts.search using your query, and set the "results" variable to the output of
+cts.search.
+
+Test your code by attempting a geospatial search from the user interface at
+localhost:8888/main.html. If your code has an error, it will show up in
+Logs/ErrorLog.txt.
+
+2.2. Write a JSON property geospatial query on the "coordinates" property to
+search for GeoJSON files that have coordinates within the search region(s).
+Combine this query with the query from exercise 2.1 using an or query. This will
+match documents with coordinates in the search regions whether they are KML or
+GeoJSON formatted.
+
+2.3. The contents of the text box can be accessed using the input.searchString
+variable. Write a cts.wordQuery to match documents containing this string, and
+combine it with the geospatial constraints using an and query. This will limit
+the results to documents that both contain the search string and contain
+coordinates located within the search region(s).
+
+2.4. Use cts.matchRegions to construct a query that matches documents with a
+"region" property/element that intersects with the search region(s). (Hint:
+compare exercise 4.3 from Unit 3.) Add this to the or query with the other
+geospatial queries.
+
+
+
+Section 3 - Crime Heatmap
+
+Now we will write the code to generate the heatmap from the crime data in the
+database. Open the file heatmap.sjs to begin.
+
+3.1. The file already contains code to split the latitude and longitude range
+into a 50x50 grid. Use the appropriate cts.*GeospatialBoxes function to
+calculate the number of crimes that occurred in each grid square. Set the
+variable "boxes" to the output of this function.
+
+3.2. Now we will loop over the boxes, and add each box to the output. Each
+result should be a triple [lat, long, intensity]. For each box, use
+geo.approxCenter to get the lat and long, and use cts.frequency to get the
+intensity.
+
+At this point, you can test your code by using the "Crime Heatmap" button in the
+UI at localhost:8888/main.html.
+
+3.3. Add the ability for the user to restrict the heatmap results based on a
+text search. The input text is in the variable input.searchString. (Hint: Use a
+cts.wordQuery, and pass it as the query constraint to the cts.*GeospatialBoxes
+function.)
+
+
+
+Section 4 - Alerting
+
+Now we will set up the geospatial alerting feature. The user can specify an
+alert region on the map, and will be notified whenever a crime occurs within
+the region.
+
+Exercises 4.1 and 4.2 take place in Query Console (at localhost:8000).
+
+4.1. To begin, we need to configure the alerting infrastructure. There are three
+things we will set up: the alert config, an alert action, and a trigger.
+  (a) Create an alert config for crime alerts, with URI
+      "http://example.com/crime-alert".
+  (b) Create an action called "set-collection", which sets the collection of the
+      document by calling setcollection.sjs. Open the file setcollection.sjs and
+      observe what it does.
+  (c) Add a trigger to the alert config that will fire whenever we insert a
+      document into the "/crime-points/" directory.
+
+4.2. An alert rule consists of a query and an associated action. When the
+trigger (from 4.1(c)) fires, the alert will check the document against the
+query. If the document matches the query, then the action will be performed.
+  (a) Create a sample alert rule that matches crime documents whose location is
+      within the bounds of Golden Gate Park. Set its action to "set-collection".
+  (b) List all rules associated to the "http://example.com/crime-alert" config.
+      Verify that the new rule has been added.
+  (c) Insert a document that matches the rule.
+  (d) Verify that the new document's collection has been set.
+
+4.3. Open the file alerts.sjs. The front-end calls this file once every few
+seconds to retrieve the latest alerts.
+  (a) Use alert.getAllRules to get all rules associated to the alert config with
+      URI: "http://example.com/crime-alert". Set the "rules" variable to the
+      output of alert.getAllRules.
+  (b) For each rule, set the variable "region" to the region that it matches.
+      (Hint: use alert.ruleGetQuery to get the query that the rule matches; then
+      use the appropriate cts.*GeospatialQueryRegion to get the region that the
+      query matches.)
+  (c) Use a cts.collectionQuery to find all the documents that match the rule's
+      collection URI. Set the "docs" variable to the output of the cts.search.
+
+After this exercise, you can go to the "Alerts" tab in the UI. You should see
+the test alert rule "Golden Gate Park" and the sample crime data point. Try
+inserting a new test document (either modify the query from 4.2(c), or delete
+the test document and re-insert it). The UI should notify you that there was a
+new event.
+
+4.4. Open the file newalert.sjs. The front end calls this file when the user
+tries to define a new alert. Write code to make the new rule and insert it.
+(Hint: Compare exercise 4.2(a).)
