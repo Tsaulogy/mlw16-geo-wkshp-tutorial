@@ -1,6 +1,0 @@
-{ "rest-api": {
-    "name": "mlw16-geo-wkshp-appserver",
-    "database": "mlw16-geo-wkshp",
-    "modules-database": "mlw16-geo-wkshp-modules",
-    "port": "8888"
-} }
