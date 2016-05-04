@@ -1,3 +1,7 @@
 This folder contains the workspaces for you to import into Query Console.
 
-To import the exercises, open your browser and go to http://localhost:8000/qconsole. On the right side of your browser, you should see a panel that lists your QConsole workspaces. Select "Import Workspace..." from the Workspace drop down menu, and browse to the *.xml files in this directory.
+To import the exercises, open your browser and go to
+http://localhost:8000/qconsole. On the right side of your browser, you should
+see a panel that lists your QConsole workspaces. Select "Import Workspace..."
+from the Workspace drop down menu, and browse to the *.xml files in this
+directory.
