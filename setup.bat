@@ -9,6 +9,7 @@ set MLCP=.\mlcp-8.0-5\bin\mlcp.bat
 set CURL=curl-7.3.0-win64-ssl-sspi\curl.exe -X POST --anyauth --user %USERNAME%:%PASSWORD%
 
 set "DIR=%cd%\geo-app"
+set DIR=%DIR:\=\\%
 set "FNAME=%DBNAME%-1"
 set "ASNAME=%DBNAME%-appserver"
 
