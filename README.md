@@ -26,6 +26,6 @@ Check to see if new databases, forests, and an appserver has been setup
 
 ###2. Import the exercises to your Query Console (QConsole)
 Open your browser and go to http://localhost:8000/qconsole
-On the right side of your browser, you should see a panel that lists your QConsole workspaces. Import the workspaces from the **workspaces** directory in this repo.
+On the right side of your browser, you should see a panel that lists your QConsole workspaces. Import the workspaces from the **workspace** directory in this repo.
 
 ###3.Now you're ready to go!
