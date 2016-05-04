@@ -22,7 +22,7 @@ On Windows, run:
 Open your browser and go to [http://localhost:8001/]([http://localhost:8001/])   
 Check to see if new databases, forests, and an appserver has been setup
 
-Open your browser and go to [http://localhost:8888/]([http://localhost:8888/])   
+Open your browser and go to [http://localhost:8888/main.html]([http://localhost:8888/main.html])   
 You should be able to see a map at this location, based on your appsever setup
 
 ###2. Import the exercises to your Query Console (QConsole)
