@@ -1,5 +1,3 @@
-#***NOTE: THIS REPOSITORY IS NOT YET READY FOR CLONING. WORKSPACES AND TUTORIAL CODE MISSING.***
-
 # MarkLogic World 2016 Geospatial Workshop
 This project contains data, query workspaces, and code to use for the MarkLogic World 2016 Geospatial Workshop.
 
@@ -23,6 +21,9 @@ On Windows, run:
 ###2. Check to make sure the setup has run correctly
 Open your browser and go to http://localhost:8001/
 Check to see if new databases, forests, and an appserver has been setup
+
+Open your browser and go to http://localhost:8888/
+You should be able to see a map at this location, based on your appsever setup
 
 ###2. Import the exercises to your Query Console (QConsole)
 Open your browser and go to http://localhost:8000/qconsole
