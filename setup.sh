@@ -14,7 +14,6 @@ FNAME="$DBNAME-1"
 ASNAME="$DBNAME-appserver"
 
 ## setup appserver instance, database, and modules-database
-## to learn more about the MarkLogic REST API, see https://docs.marklogic.com/guide/rest-dev/service#id_12021
 
 echo "Setup database, forest, and appserver..."
 $CURL -X POST -d "{\"database-name\":\"$DBNAME\"}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/databases
