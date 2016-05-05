@@ -1,27 +1,44 @@
-<export><workspace name="unit3-XQY-geospatial-search"><query name="exercise-1.1" focus="false" listorder="2" taborder="2" active="true" database="9059189350391337657" server="3157198157855269707" mode="xquery">(:
+<export><workspace name="unit3-XQY-geospatial-search"><query name="Sample Data" focus="true" listorder="1" taborder="1" active="true" database="9059189350391337657" server="3157198157855269707" mode="xquery">if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+(: School data :)
+fn:doc("/schools-points/sf-public-schools-points.kml-0-109.xml"),
+
+(: Crime data :)
+fn:doc("/crime-points/sf-2015-crime-points.xml-0-118730.xml"),
+
+(: Benches &amp; Picnic tables :)
+fn:doc("/benches/benches-points-16317649215586544036.json"),
+fn:doc("/picnic-tables/picnic-tables-points-4803263452428296981.json"),
+
+(: Bike paths :)
+fn:doc("/bikeway-network/bikepaths-linestrings-7072575054613262216.json"),
+
+(: Realtor neighborhoods :)
+fn:doc("/realtor-neighborhood/neighborhood-polygon-3803868776378775358.json")
+</query><query name="exercise-1.1" focus="false" listorder="2" taborder="2" active="true" database="9059189350391337657" server="3157198157855269707" mode="xquery">(:
 Exercise 1.1: Create a geospatial element index for &lt;coordinates&gt;.
 
-Go to the Admin GUI at localhost:8001, and navigate to 
-Databases/mlw16-geo-wkshp/Geospatial Indexes/Geospatial Element Indexes, 
-and click the "add" tab to add a new index. Leave the namespace URI blank, 
-and type in the desired element name ("coordinates"). Set the coordinate 
+Go to the Admin GUI at localhost:8001, and navigate to
+Databases/mlw16-geo-wkshp/Geospatial Indexes/Geospatial Element Indexes,
+and click the "add" tab to add a new index. Leave the namespace URI blank,
+and type in the desired element name ("coordinates"). Set the coordinate
 system to wgs84.
 
-Important Note: KML and GeoJSON store coordinates with longitude first, 
-then latitude. So make sure to choose "long-lat-point" as the point format. 
+Important Note: KML and GeoJSON store coordinates with longitude first,
+then latitude. So make sure to choose "long-lat-point" as the point format.
 Leave the remaining properties at their defaults.
 :)</query><query name="exercise-1.2.xqy" focus="false" listorder="3" taborder="3" active="true" database="9059189350391337657" server="3157198157855269707" mode="xquery">(:
 Exercise 1.2: Create an index using the admin API.
 
 Suppose your data is of the form:
-&lt;location 
-  latitude="37.7710611356079" 
+&lt;location
+  latitude="37.7710611356079"
   longitude="-122.453078855673"&gt;
 
-To index this format we would set up an element-attribute-pair 
-index. You can do this through the admin GUI, but here we will 
-use the Admin API instead 
-(https://docs.marklogic.com/guide/admin-api/usingAPI). You 
+To index this format we would set up an element-attribute-pair
+index. You can do this through the admin GUI, but here we will
+use the Admin API instead
+(https://docs.marklogic.com/guide/admin-api/usingAPI). You
 will need to use the functions:
   admin:get-configuration (retreives the server configuration)
   admin:database-geospatial-element-attribute-pair-index (creates an index specification)
@@ -31,18 +48,20 @@ will need to use the functions:
 :)
 
 xquery version "1.0-ml";
-import module namespace admin = "http://marklogic.com/xdmp/admin" 
+import module namespace admin = "http://marklogic.com/xdmp/admin"
          at "/MarkLogic/admin.xqy";
-         
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
 let $config := admin:get-configuration()
 
 let $new-config := (: add the new index :)
 
 return admin:save-configuration($new-config)
 </query><query name="exercise-1.2-sol.xqy" focus="false" listorder="4" taborder="4" active="true" database="9059189350391337657" server="3157198157855269707" mode="xquery">xquery version "1.0-ml";
-import module namespace admin = "http://marklogic.com/xdmp/admin" 
+import module namespace admin = "http://marklogic.com/xdmp/admin"
          at "/MarkLogic/admin.xqy";
-         
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
 let $config := admin:get-configuration()
 
 let $new-index := admin:database-geospatial-element-attribute-pair-index(
@@ -57,7 +76,7 @@ let $new-config := admin:database-add-geospatial-element-attribute-pair-index(
   $config, xdmp:database("mlw16-geo-wkshp"), $new-index)
 
 return admin:save-configuration($new-config)</query><query name="exercise-1.3.xqy" focus="false" listorder="5" taborder="5" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-Exercise 1.3: MarkLogic supports a variety of formats for indexing. 
+Exercise 1.3: MarkLogic supports a variety of formats for indexing.
 These include element-pair, element-child, and XPath indexes.
 
 Try to create a geospatial index for data in the format:
@@ -77,9 +96,11 @@ We should use a geospatial-element-pair-index for this format.
 The code below shows how you would do this using the admin API.
 :)
 xquery version "1.0-ml";
-import module namespace admin = "http://marklogic.com/xdmp/admin" 
+import module namespace admin = "http://marklogic.com/xdmp/admin"
          at "/MarkLogic/admin.xqy";
-         
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+
 let $config := admin:get-configuration()
 
 let $new-index := admin:database-geospatial-element-pair-index(
@@ -94,70 +115,78 @@ let $new-config := admin:database-add-geospatial-element-pair-index(
   $config, xdmp:database("mlw16-geo-wkshp"), $new-index)
 
 return admin:save-configuration($new-config);</query><query name="exercise-1.4-homework" focus="false" listorder="7" taborder="7" active="true" database="9059189350391337657" server="3157198157855269707" mode="xquery">(:
-In addition to the Admin GUI and the Admin API, MarkLogic also 
-provides a REST-based interface for server management at 
-localhost:8002/manage. For example, to see the properties of 
-the mlw16-geo-wkshp database, visit the endpoint 
+In addition to the Admin GUI and the Admin API, MarkLogic also
+provides a REST-based interface for server management at
+localhost:8002/manage. For example, to see the properties of
+the mlw16-geo-wkshp database, visit the endpoint
 localhost:8002/manage/v2/databases/mlw16-geo-wkshp/properties
 
-Exercise: Read more about the REST Management API 
-(https://docs.marklogic.com/REST/management) and try using it 
+Exercise: Read more about the REST Management API
+(https://docs.marklogic.com/REST/management) and try using it
 to add, modify, or delete geospatial indexes.
 :)</query><query name="exercise-2.1.xqy" focus="false" listorder="8" taborder="8" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-Exercise 2.1: Use the index we created in exercise 1.1 on the 
-&lt;coordinates&gt; element to find all documents that contain a point 
+Exercise 2.1: Use the index we created in exercise 1.1 on the
+&lt;coordinates&gt; element to find all documents that contain a point
 within 1/2 mile of the point (37.770, -122.447).
 
 Use a cts:element-geospatial-query with a cts:circle of radius 0.5.
-Then use cts:search with fn:doc() to search for all documents with 
+Then use cts:search with fn:doc() to search for all documents with
 matching points.
 :)
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
 
 let $qry := (: create a query here :)
 
-return cts:search(fn:doc(), $qry)</query><query name="exercise-2.1-sol.xqy" focus="false" listorder="9" taborder="9" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">let $center := cts:point(-122.447, 37.770)
+return cts:search(fn:doc(), $qry)</query><query name="exercise-2.1-sol.xqy" focus="false" listorder="9" taborder="9" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+let $center := cts:point(-122.447, 37.770)
 let $circle := cts:circle(0.5, $center)
 
 let $qry := cts:element-geospatial-query(xs:QName("coordinates"), $circle)
 
 return cts:search(fn:doc(), $qry)</query><query name="exercise-2.2.xqy" focus="false" listorder="10" taborder="10" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-Exercise 2.2: A common use of geospatial queries in search 
-applications is to limit search results to a map window. 
+Exercise 2.2: A common use of geospatial queries in search
+applications is to limit search results to a map window.
 Suppose the map window has the following bounds:
 south = 37.756
 west  = -122.476
 north = 37.785
 east  = -122.421
-Write a query that searches for the word "school", but limits 
-the results to the map window. (As in the previous exercise, 
+Write a query that searches for the word "school", but limits
+the results to the map window. (As in the previous exercise,
 use the geospatial element index on &lt;coordinates&gt;.)
 
-Use a cts:and-query to search for documents that satisfy both 
-requirements. So documents must contain a given word (use a 
-cts:word-query) and be in the specified geospatial bounds (use 
+Use a cts:and-query to search for documents that satisfy both
+requirements. So documents must contain a given word (use a
+cts:word-query) and be in the specified geospatial bounds (use
 cts:element-geospatial-query with a cts:box).
 :)
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
 
 let $qry := (: create a query here :)
 
-return cts:search(fn:doc(),$qry)</query><query name="exercise-2.2-sol.xqy" focus="false" listorder="11" taborder="11" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">let $window := cts:box(37.756,-122.476,37.785,-122.421)
+return cts:search(fn:doc(),$qry)</query><query name="exercise-2.2-sol.xqy" focus="false" listorder="11" taborder="11" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+let $window := cts:box(37.756,-122.476,37.785,-122.421)
 let $geo-qry := cts:element-geospatial-query(xs:QName("coordinates"), $window, "type=long-lat-point")
 
 let $word-qry := cts:word-query("school")
 
 let $qry := cts:and-query(($word-qry, $geo-qry))
 
-return xdmp:plan(cts:search(fn:doc(),$qry))</query><query name="exercise-2.3.xqy" focus="false" listorder="12" taborder="12" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-Exercise 2.3: The following WKT-formatted polygon represents the 
+return cts:search(fn:doc(),$qry)</query><query name="exercise-2.3.xqy" focus="false" listorder="12" taborder="12" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
+Exercise 2.3: The following WKT-formatted polygon represents the
 North Beach neighborhood of San Francisco.
 POLYGON((-122.406776 37.797577,-122.413818 37.796764,-122.415016 37.803818,-122.417076 37.805172,-122.409355 37.805580,-122.408493 37.799339,-122.406776 37.797577))
 
-Write a query to count the documents in the database that contain 
-coordinates in this neighborhood.
-
-Compare the results you get using fn:count vs. xdmp:estimate.
+Write a query to count the documents in the database that contain
+coordinates in this neighborhood. (Hint: use fn:count or xdmp:estimate.)
 :)
-</query><query name="exercise-2.3-sol.xqy" focus="false" listorder="13" taborder="13" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">let $poly := geo:parse-wkt("POLYGON((-122.406776 37.797577,-122.413818 37.796764,-122.415016 37.803818,-122.417076 37.805172,-122.409355 37.805580,-122.408493 37.799339,-122.406776 37.797577))")
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+</query><query name="exercise-2.3-sol.xqy" focus="false" listorder="13" taborder="13" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+let $poly := geo:parse-wkt("POLYGON((-122.406776 37.797577,-122.413818 37.796764,-122.415016 37.803818,-122.417076 37.805172,-122.409355 37.805580,-122.408493 37.799339,-122.406776 37.797577))")
 
 let $qry := cts:element-geospatial-query(xs:QName("coordinates"), $poly, "type=long-lat-point")
 
@@ -166,75 +195,89 @@ return (
   fn:count(cts:search(doc(), $qry))
 )
 </query><query name="exercise-3.1.xqy" focus="false" listorder="14" taborder="14" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-Exercise 3.1: Geospatial lexicon functions allow you to browse 
-the points stored in a geospatial index. The simplest geospatial 
-lexicon functions are cts:*-geospatial-values (where * is 
+Exercise 3.1: Geospatial lexicon functions allow you to browse
+the points stored in a geospatial index. The simplest geospatial
+lexicon functions are cts:*-geospatial-values (where * is
 replaced by the type of index).
 
 Use the cts:element-geospatial-values function to see a list of the
 points stored in the &lt;coordinates&gt; index we set up in exercise 1.1.
 
-Important Note: By default, the geospatial lexicon functions only 
-look for indexes of type "point". Remember that our index is of type 
-"long-lat-point". So when using these functions you must supply the 
-option "type=long-lat-point". 
+Important Note: By default, the geospatial lexicon functions only
+look for indexes of type "point". Remember that our index is of type
+"long-lat-point". So when using these functions you must supply the
+option "type=long-lat-point".
 :)
-</query><query name="exercise-3.1-sol.xqy" focus="false" listorder="15" taborder="15" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">cts:element-geospatial-values(xs:QName("coordinates"),(),"type=long-lat-point")
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+</query><query name="exercise-3.1-sol.xqy" focus="false" listorder="15" taborder="15" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+cts:element-geospatial-values(xs:QName("coordinates"),(),"type=long-lat-point")
 
 (: Alternative solution:
 let $index := cts:geospatial-element-reference(xs:QName("coordinates"),"type=long-lat-point")
 return cts:values($index)
 :)</query><query name="exercise-3.2.xqy" focus="false" listorder="16" taborder="16" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-Exercise 3.2: The lexicon function cts:element-geospatial-value-match 
+Exercise 3.2: The lexicon function cts:element-geospatial-value-match
 allows you to match specific points from the geospatial index. This
-function returns points from the index; if you want the original 
+function returns points from the index; if you want the original
 documents, use the points to create a cts:element-geospatial-query.
-You can also use cts:frequency on the result to determine how many 
-documents contain the point. 
+You can also use cts:frequency on the result to determine how many
+documents contain the point.
 
-Use cts:element-geospatial-value-match and cts:frequency to determine 
-how many documents contain the point: 
+Use cts:element-geospatial-value-match and cts:frequency to determine
+how many documents contain the point:
 (-122.39399537822999,37.731322072312345).
-:)</query><query name="exercise-3.2-sol.xqy" focus="false" listorder="17" taborder="17" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">let $p := cts:point(-122.39399537822999,37.731322072312345)
+:)
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+</query><query name="exercise-3.2-sol.xqy" focus="false" listorder="17" taborder="17" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+let $p := cts:point(-122.39399537822999,37.731322072312345)
 return cts:frequency(cts:element-geospatial-value-match(xs:QName("coordinates"), $p, "type=long-lat-point"))</query><query name="exercise-3.3.xqy" focus="false" listorder="18" taborder="18" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
 Exercise 3.3: (a) The lexicon function cts:element-geospatial-boxes
 sorts the points in the index into box-shaped "buckets". Use this
 function to sort the points in the index into 4 buckets, divided by
-latitude 37.770 and longitude -122.447. The function will return a 
+latitude 37.770 and longitude -122.447. The function will return a
 box for each of the 4 buckets.
 
-(b) The function cts:frequency can be used on these boxes to 
-determine how many points are contained in each box. Use 
+(b) The function cts:frequency can be used on these boxes to
+determine how many points are contained in each box. Use
 cts:frequency to find the number of points in each of the boxes
 from part (a).
 
 Note: This technique is useful for creating "heatmaps".
-:)</query><query name="exercise-3.3-sol.xqy" focus="false" listorder="19" taborder="19" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">for $box in 
+:)
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+</query><query name="exercise-3.3-sol.xqy" focus="false" listorder="19" taborder="19" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+for $box in
   cts:element-geospatial-boxes(xs:QName("coordinates"),
     (37.770), (-122.447),
     "type=long-lat-point")
 return ($box, cts:frequency($box))</query><query name="exercise-4.1.xqy" focus="false" listorder="20" taborder="20" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-The function cts:match-regions allows you to search 
-for regions stored in documents. To use it, your data should be 
-stored in WKT format, and you will need a string range index on the 
+The function cts:match-regions allows you to search
+for regions stored in documents. To use it, your data should be
+stored in WKT format, and you will need a string range index on the
 element that contains the WKT string.
 
 Some of the documents in the database contain data in this format:
 &lt;region&gt;POLYGON((-122.406776 37.797577,-122.413818 37.796764,-122.415016 37.803818,-122.417076 37.805172,-122.409355 37.805580,-122.408493 37.799339,-122.406776 37.797577))&lt;/region&gt;
 
-Exercise 4.1: The code below will set up an element range index on 
+Exercise 4.1: The code below will set up an element range index on
 the &lt;region&gt; element, with type=string.
 :)
 
 xquery version "1.0-ml";
-import module namespace admin = "http://marklogic.com/xdmp/admin" 
+import module namespace admin = "http://marklogic.com/xdmp/admin"
          at "/MarkLogic/admin.xqy";
-         
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
+
+
 let $config := admin:get-configuration()
 
 let $new-index := admin:database-range-element-index(
-  "string", 
-  "","region", 
+  "string",
+  "","region",
   "http://marklogic.com/collation/",
   fn:false()
 )
@@ -244,27 +287,29 @@ let $new-config := admin:database-add-range-element-index(
 
 return admin:save-configuration($new-config)
 </query><query name="exercise-4.2.xqy" focus="false" listorder="21" taborder="21" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-Exercise 4.2: Use cts:match-regions to find all regions in the 
+Exercise 4.2: Use cts:match-regions to find all regions in the
 database that intersect the polygon (in WKT):
 POLYGON((-122.41533279418945 37.78064679009218,-122.43043899536133 37.75594988363168,-122.38632202148438 37.75649276142684,-122.3931884765625 37.781460833378034,-122.41533279418945 37.78064679009218))
 :)
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
 
 let $poly := cts:parse-wkt("POLYGON((-122.41533279418945 37.78064679009218,-122.43043899536133 37.75594988363168,-122.38632202148438 37.75649276142684,-122.3931884765625 37.781460833378034,-122.41533279418945 37.78064679009218))")
 let $index := cts:element-reference(xs:QName("region"))
 
 return cts:match-regions($index, "intersects", $poly)</query><query name="exercise-4.3.xqy" focus="false" listorder="22" taborder="22" active="true" database="9059189350391337657" server="17543607842490988103" mode="xquery">(:
-Much like the cts:*-value-match lexicon functions, cts:match-regions 
-returns the regions themselves. To obtain the WKT strings, use the 
+Much like the cts:*-value-match lexicon functions, cts:match-regions
+returns the regions themselves. To obtain the WKT strings, use the
 "strings" option to cts:match-regions.
 
-If you want to retrieve the documents containing the matching 
+If you want to retrieve the documents containing the matching
 regions, use these strings to construct a cts:json-property-range-query
 to find the documents containing the WKT strings.
 
-Exercise 4.3: Find all documents in the database whose "region" 
+Exercise 4.3: Find all documents in the database whose "region"
 intersects the polygon:
 POLYGON((-122.41533279418945 37.78064679009218,-122.43043899536133 37.75594988363168,-122.38632202148438 37.75649276142684,-122.3931884765625 37.781460833378034,-122.41533279418945 37.78064679009218))
 :)
+if (xdmp:database-name(xdmp:database())!="mlw16-geo-wkshp") then (fn:error((),"Wrong Database -- set database to mlw16-geo-wkshp")) else
 
 let $poly := cts:parse-wkt("POLYGON((-122.41533279418945 37.78064679009218,-122.43043899536133 37.75594988363168,-122.38632202148438 37.75649276142684,-122.3931884765625 37.781460833378034,-122.41533279418945 37.78064679009218))")
 let $index := cts:element-reference(xs:QName("region"))
@@ -273,20 +318,4 @@ let $wkt-strings := cts:match-regions($index, "intersects", $poly, ("strings"))
 
 let $qry := cts:json-property-range-query("region", "=", $wkt-strings)
 return cts:search(doc(), $qry)
-</query><query name="Sample Data" focus="true" listorder="1" taborder="1" active="true" database="9059189350391337657" server="3157198157855269707" mode="xquery">
-(: School data :)
-fn:doc("/schools-points/sf-public-schools-points.kml-0-109.xml"),
-
-(: Crime data :)
-fn:doc("/crime-points/sf-2015-crime-points.xml-0-118730.xml"),
-
-(: Benches &amp; Picnic tables :)
-fn:doc("/benches/benches-points-16317649215586544036.json"),
-fn:doc("/picnic-tables/picnic-tables-points-4803263452428296981.json"),
-
-(: Bike paths :)
-fn:doc("/bikeway-network/bikepaths-linestrings-7072575054613262216.json"),
-
-(: Realtor neighborhoods :)
-fn:doc("/realtor-neighborhood/neighborhood-polygon-3803868776378775358.json")
 </query></workspace></export>
