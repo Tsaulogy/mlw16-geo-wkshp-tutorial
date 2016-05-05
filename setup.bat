@@ -24,9 +24,9 @@ del .\host.tmp
 rem configure database, forest, and appserver
 
 echo "Setup database, forest, and appserver..."
-%CURL% -d "{""database-name"":""%DBNAME%""}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/databases
+%CURL% -d "{""database-name"":""%DBNAME%"",""triggers-database"":""Triggers""}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/databases
 %CURL% -d "{""forest-name"":""%FNAME%"",""host"":""%HOSTID%"",""database"":""%DBNAME%""}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/forests
-%CURL% -d "{""root"":""%DIR%"",""server-name"":""%ASNAME%"",""server-type"":""http"",""port"":""%PORT%"",""content-database"":""%DBNAME%"",""authentication"":""application-level"",""url-rewriter"":""url.xqy""}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/servers?group-id=Default
+%CURL% -d "{""root"":""%DIR%"",""server-name"":""%ASNAME%"",""server-type"":""http"",""port"":""%PORT%"",""content-database"":""%DBNAME%"",""authentication"":""application-level"",""url-rewriter"":""url.xqy"",""default-user"":""%USERNAME%""}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/servers?group-id=Default
 
 rem load data into database
 rem to learn more about MarkLogic Content Pump, see https://docs.marklogic.com/guide/mlcp

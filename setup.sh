@@ -16,9 +16,9 @@ ASNAME="$DBNAME-appserver"
 ## setup appserver instance, database, and modules-database
 
 echo "Setup database, forest, and appserver..."
-$CURL -X POST -d "{\"database-name\":\"$DBNAME\"}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/databases
+$CURL -X POST -d "{\"database-name\":\"$DBNAME\",\"triggers-database\":\"Triggers\"}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/databases
 $CURL -X POST -d "{\"forest-name\":\"$FNAME\",\"host\":\"$HOSTID\",\"database\":\"$DBNAME\"}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/forests
-$CURL -X POST -d "{\"server-name\":\"$ASNAME\",\"server-type\":\"http\",\"root\":\"$DIR\",\"port\":\"$PORT\",\"content-database\":\"$DBNAME\",\"authentication\":\"application-level\",\"url-rewriter\":\"url.xqy\"}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/servers?group-id=Default
+$CURL -X POST -d "{\"server-name\":\"$ASNAME\",\"server-type\":\"http\",\"root\":\"$DIR\",\"port\":\"$PORT\",\"content-database\":\"$DBNAME\",\"authentication\":\"application-level\",\"url-rewriter\":\"url.xqy\",\"default-user\":\"$USERNAME\"}" -H "Content-type: application/json" http://localhost:8002/manage/LATEST/servers?group-id=Default
 
 ## load data
 ## to learn more about MarkLogic Content Pump, see https://docs.marklogic.com/guide/mlcp
