@@ -5,6 +5,7 @@ This project contains data, query workspaces, and code to use for the MarkLogic 
 * MarkLogic 8.0-4 or newer installed, running
 * Java
 * cURL (provided for Windows)
+* MarkLogic Content Pump (AKA [MLCP](http://docs.marklogic.com/guide/mlcp)) (included in this repository)
 
 ##Quickstart
 
@@ -33,12 +34,21 @@ Download or clone this repo to your desktop. Navigate to the directory that incl
 
 e.g. D:\github\mlw16-geo-wkshp-tutorial-master
 
+
+
 ###2. Setup database, modules, appserver and load data
 On a Mac or Linux machine, run:  
 >sh setup.sh
 
 On Windows, run:  
 >setup.bat
+
+
+Under the hood, these scripts use MarkLogic's [Management API](http://docs.marklogic.com/guide/monitoring/monitoringAPI) and MLCP to do the setup.
+
+The scripts assume you chose _admin_ : _admin_ for your MarkLogic admin login information (see Step 0.4 above). If you __did not__ choose this login during your MarkLogic configuration, you will need to open up the appropriate script file and update the USERNAME and PASSWORD.
+
+
 
 ###3. Check to make sure the setup has run correctly
 Open your browser and go to [http://localhost:8001/](http://localhost:8001/)
@@ -52,9 +62,13 @@ _If your setup is successful, you should see:_
 Open your browser and go to [http://localhost:8888/main.html](http://localhost:8888/main.html)
 You should be able to see a map at this location, based on your appsever setup
 
+
+
 ###4. Import the exercises to your Query Console (QConsole)
 Open your browser and go to [http://localhost:8000/qconsole](http://localhost:8000/qconsole/). This is the [Query Console (AKA QConsole)](http://docs.marklogic.com/guide/qconsole/intro).  
 On the right side of your browser, you should see a panel that lists your QConsole workspaces. Import the workspaces from the **workspace** directory in this repo. This tutorial includes JavaScript and XQuery versions of the same workspaces.
+
+
 
 ###5. Now you're ready to go! 
 Walk through the workspaces in sequence (starting from Unit 1). When you get to Unit 4, read __EXERCISES.txt__ in this repository's __geo-app__ directory before getting started.
