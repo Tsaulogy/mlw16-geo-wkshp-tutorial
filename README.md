@@ -51,9 +51,8 @@ The scripts assume you chose _admin_ : _admin_ for your MarkLogic admin login in
 
 
 ###3. Check to make sure the setup has run correctly
-Open your browser and go to [http://localhost:8001/](http://localhost:8001/). Check the Admin Interface to see if new databases, forests, and an appserver has been setup
+Open your browser and go to [http://localhost:8001/](http://localhost:8001/). Check the Admin Interface to see if new databases, forests, and an appserver has been setup. If your setup is successful, you should see:
 
-_If your setup is successful, you should see:_
 * _mlw16-geo-wkshp_ - listed as one of the databases
 * _mlw16-geo-wkshp-1_ - listed as one of the forests
 * _mlw16-geo-wkshp-appserver : 8888 [HTTP]_ - listed as one of the application servers
