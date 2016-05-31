@@ -32,7 +32,7 @@ You will see the Admin Interface when you are done configuring MarkLogic.
 ###1. Grab a local copy of this repo 
 Download or clone this repo to your desktop. Navigate to the directory that includes the repository. Make sure MarkLogic is up and running (if you've completed Step 0, you're good to go.).
 
-e.g. D:\github\mlw16-geo-wkshp-tutorial-master
+e.g. Unzip the repo and go to folder D:\github\mlw16-geo-wkshp-tutorial-master
 
 
 
