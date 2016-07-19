@@ -1,8 +1,10 @@
 # MarkLogic World 2016 Geospatial Workshop
 This project contains data, query workspaces, and code to use for the MarkLogic World 2016 Geospatial Workshop.
 
+__*For the slides that accompany this workshop, please contact me at jennifer.tsau@marklogic.com*__
+
 ##Requirements
-* MarkLogic 8.0-4 or newer installed, running
+* MarkLogic 8.0-4 or newer installed, running (but must be MarkLogic 8.0-x)
 * Java
 * cURL (provided for Windows)
 * MarkLogic Content Pump (AKA [MLCP](http://docs.marklogic.com/guide/mlcp)) (included in this repository)
